@@ -144,6 +144,26 @@ function App() {
     }
   }
 
+  const getCurrentPerformanceEmoji = () => {
+    const percentage = Math.round((score / totalPossibleScore) * 100)
+    
+    if (percentage >= 90) {
+      return '🏆'
+    } else if (percentage >= 80) {
+      return '🌟'
+    } else if (percentage >= 70) {
+      return '👏'
+    } else if (percentage >= 60) {
+      return '👍'
+    } else if (percentage >= 50) {
+      return '📚'
+    } else if (percentage >= 30) {
+      return '💪'
+    } else {
+      return '🎯'
+    }
+  }
+
   return (
     <>
       <Text variant="heading" level={1}>TDD Trivia</Text>
@@ -176,8 +196,11 @@ function App() {
         </Card>
       )}
       <Card>
-        {currentQuestionIndex !== -1 && (
-          <Text>Score: {score}/{totalPossibleScore} points • Progress: {calculateProgress()}%</Text>
+        {currentQuestionIndex !== -1 && currentQuestionIndex < questionsData.length && (
+          <Text>{getCurrentPerformanceEmoji()} Score: {score}/{totalPossibleScore} points • Progress: {calculateProgress()}%</Text>
+        )}
+        {currentQuestionIndex >= questionsData.length && (
+          <Text>{getCurrentPerformanceEmoji()} Score: {score}/{totalPossibleScore} points</Text>
         )}
         {currentQuestionIndex >= questionsData.length && (
           <Text>{getFinalScoreAssessment().emoji} {getFinalScoreAssessment().message}</Text>
