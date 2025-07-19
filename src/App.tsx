@@ -90,8 +90,7 @@ function App() {
       <Text variant="heading" level={1}>TDD Trivia</Text>
       <Card>
         <Text>Loaded {questionsData.length} questions</Text>
-        <Text>Total possible score: {totalPossibleScore} points</Text>
-        <Text>Current score: {score}</Text>
+        <Text>Score: {score}/{totalPossibleScore} points • Progress: {Math.round(((currentQuestionIndex + 1) / questionsData.length) * 100)}% completed</Text>
         {currentQuestionIndex === -1 ? (
           <Button onClick={handleStartQuiz}>
             Start Quiz
@@ -109,7 +108,7 @@ function App() {
       {currentQuestion && (
         <Card data-testid="question-card">
           <Text variant="heading" level={3}>
-            {currentQuestion.question}
+            Question {currentQuestion.id}: {currentQuestion.question}
           </Text>
           <Text>
             {formatCategoryAndDifficulty(currentQuestion.category, currentQuestion.difficulty_level)}

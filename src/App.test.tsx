@@ -31,14 +31,14 @@ describe('App renders', () => {
 
   it('the total possible score as paragraph', () => {
     render(<App />)
-    const totalScore = screen.getByText(/total possible score: \d+ points/i)
+    const totalScore = screen.getByText(/Score: \d+\/\d+ points/)
     expect(totalScore).toBeInTheDocument()
     expect(totalScore.tagName).toBe('P')
   })
 
   it('the current score initially shows 0', () => {
     render(<App />)
-    const currentScore = screen.getByText('Current score: 0')
+    const currentScore = screen.getByText(/Score: 0\/\d+ points/)
     expect(currentScore).toBeInTheDocument()
     expect(currentScore.tagName).toBe('P')
   })
@@ -130,11 +130,11 @@ describe('App increments', () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     await user.click(startButton)
-    expect(screen.getByText('Current score: 0')).toBeInTheDocument()
+    expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
     const nextButton = screen.getByRole('button', { name: /next question/i })
     await user.click(nextButton)
     // No answer selected or confirmed, score should remain 0
-    expect(screen.getByText('Current score: 0')).toBeInTheDocument()
+    expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
   })
 
   it('does not update score when moving through multiple questions without confirming', async () => {
@@ -145,7 +145,7 @@ describe('App increments', () => {
     await user.click(nextButton) // Q2 (no answer confirmed)
     await user.click(nextButton) // Q3 (no answer confirmed)
     // No answers confirmed, score should remain 0
-    expect(screen.getByText('Current score: 0')).toBeInTheDocument()
+    expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
   })
 
   it('does not update score across many questions without confirming answers', async () => {
@@ -158,7 +158,7 @@ describe('App increments', () => {
     await user.click(nextButton) // Q4 (no answer confirmed)
     await user.click(nextButton) // Q5 (no answer confirmed)
     // No answers confirmed, score should remain 0
-    expect(screen.getByText('Current score: 0')).toBeInTheDocument()
+    expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
   })
 
   it('only adds score for correct answers', async () => {
@@ -176,7 +176,7 @@ describe('App increments', () => {
     const nextButton = screen.getByRole('button', { name: /next question/i })
     await user.click(nextButton)
     
-    expect(screen.getByText('Current score: 1')).toBeInTheDocument()
+    expect(screen.getByText(/Score: 1\/\d+ points/)).toBeInTheDocument()
   })
 
   it('does not add score for incorrect answers', async () => {
@@ -194,7 +194,7 @@ describe('App increments', () => {
     const nextButton = screen.getByRole('button', { name: /next question/i })
     await user.click(nextButton)
     
-    expect(screen.getByText('Current score: 0')).toBeInTheDocument()
+    expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
   })
 
   it('correctly calculates mixed correct and incorrect answers', async () => {
@@ -219,7 +219,7 @@ describe('App increments', () => {
     await user.click(nextButton)
     
     // Should only have 1 point from the first correct answer
-    expect(screen.getByText('Current score: 1')).toBeInTheDocument()
+    expect(screen.getByText(/Score: 1\/\d+ points/)).toBeInTheDocument()
   })
 
   it('does not add score when moving to next question without confirming', async () => {
@@ -236,7 +236,7 @@ describe('App increments', () => {
     await user.click(nextButton)
     
     // Should not add any points since answer wasn't confirmed
-    expect(screen.getByText('Current score: 0')).toBeInTheDocument()
+    expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
   })
 
   it('shows End of Quiz button when reaching the last question', async () => {
