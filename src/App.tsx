@@ -91,7 +91,7 @@ function App() {
     <>
       <Text variant="heading" level={1}>TDD Trivia</Text>
       <Card>
-        <Text>Score: {score}/{totalPossibleScore} points • Progress: {Math.round(((currentQuestionIndex + 1) / questionsData.length) * 100)}% completed</Text>
+        <Text>Score: {score}/{totalPossibleScore} points • Progress: {Math.round(((currentQuestionIndex + 1) / questionsData.length) * 100)}%</Text>
         {currentQuestionIndex === -1 ? (
           <Button onClick={handleStartQuiz}>
             Start Quiz
