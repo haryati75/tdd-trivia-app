@@ -16,6 +16,7 @@ function App() {
   const [score, setScore] = useState(0)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(-1)
   const [selectedAnswer, setSelectedAnswer] = useState<string>('')
+  const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number>(-1)
   const [isAnswerConfirmed, setIsAnswerConfirmed] = useState(false)
 
   const currentQuestion = currentQuestionIndex >= 0 ? questionsData[currentQuestionIndex] : null
@@ -40,11 +41,12 @@ function App() {
   }
 
   const handleNextQuestion = () => {
-    if (currentQuestion) {
+    if (currentQuestion && isAnswerConfirmed && selectedAnswerIndex === currentQuestion.correct_answer) {
       const currentQuestionScore = DIFFICULTY_SCORES[currentQuestion.difficulty_level as keyof typeof DIFFICULTY_SCORES]
       setScore((score) => score + currentQuestionScore)
     }
     setSelectedAnswer('') // Reset selection for next question
+    setSelectedAnswerIndex(-1) // Reset answer index for next question
     setIsAnswerConfirmed(false) // Reset confirmation for next question
     setCurrentQuestionIndex((index) => index + 1)
   }
@@ -52,6 +54,7 @@ function App() {
   const handleEndQuiz = () => {
     setCurrentQuestionIndex(-1)
     setSelectedAnswer('')
+    setSelectedAnswerIndex(-1)
     setIsAnswerConfirmed(false)
   }
 
@@ -59,16 +62,27 @@ function App() {
     setCurrentQuestionIndex(0)
     setScore(0)
     setSelectedAnswer('')
+    setSelectedAnswerIndex(-1)
     setIsAnswerConfirmed(false)
   }
 
   const handleAnswerSelection = (value: string, index: number) => {
     setSelectedAnswer(value)
+    setSelectedAnswerIndex(index)
     console.log(`Selected: ${value} (option ${index + 1})`)
   }
 
   const handleConfirmAnswer = () => {
     setIsAnswerConfirmed(true)
+  }
+
+  const getAnswerEmoji = () => {
+    if (!isAnswerConfirmed || !currentQuestion || selectedAnswerIndex === -1) {
+      return ''
+    }
+    
+    const isCorrect = selectedAnswerIndex === currentQuestion.correct_answer
+    return isCorrect ? ' ✅' : ' ❌'
   }
 
   return (
@@ -113,7 +127,7 @@ function App() {
             Confirm Answer
           </Button>
           <Text>
-            Selected answer: {selectedAnswer || 'No answer selected'}
+            Selected answer: {selectedAnswer || 'No answer selected'}{getAnswerEmoji()}
           </Text>
         </Card>
       )}

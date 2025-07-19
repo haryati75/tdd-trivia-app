@@ -126,40 +126,117 @@ describe('App increments', () => {
     expect(questionCard.className).toBe('card')
   })
 
-  it('updates current score based on Easy difficulty (1 point)', async () => {
+  it('does not update score when no answer is confirmed', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     await user.click(startButton)
     expect(screen.getByText('Current score: 0')).toBeInTheDocument()
     const nextButton = screen.getByRole('button', { name: /next question/i })
     await user.click(nextButton)
-    // First question is Easy, score should be 1
+    // No answer selected or confirmed, score should remain 0
+    expect(screen.getByText('Current score: 0')).toBeInTheDocument()
+  })
+
+  it('does not update score when moving through multiple questions without confirming', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    await user.click(startButton)
+    const nextButton = screen.getByRole('button', { name: /next question/i })
+    await user.click(nextButton) // Q2 (no answer confirmed)
+    await user.click(nextButton) // Q3 (no answer confirmed)
+    // No answers confirmed, score should remain 0
+    expect(screen.getByText('Current score: 0')).toBeInTheDocument()
+  })
+
+  it('does not update score across many questions without confirming answers', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    await user.click(startButton)
+    const nextButton = screen.getByRole('button', { name: /next question/i })
+    await user.click(nextButton) // Q2 (no answer confirmed)
+    await user.click(nextButton) // Q3 (no answer confirmed) 
+    await user.click(nextButton) // Q4 (no answer confirmed)
+    await user.click(nextButton) // Q5 (no answer confirmed)
+    // No answers confirmed, score should remain 0
+    expect(screen.getByText('Current score: 0')).toBeInTheDocument()
+  })
+
+  it('only adds score for correct answers', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    await user.click(startButton)
+    
+    // Select correct answer for first question and confirm
+    const correctOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
+    await user.click(correctOption)
+    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    
+    // Move to next question - should add 1 point for Easy correct answer
+    const nextButton = screen.getByRole('button', { name: /next question/i })
+    await user.click(nextButton)
+    
     expect(screen.getByText('Current score: 1')).toBeInTheDocument()
   })
 
-  it('updates current score based on Medium difficulty (2 points)', async () => {
+  it('does not add score for incorrect answers', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     await user.click(startButton)
+    
+    // Select incorrect answer for first question and confirm
+    const incorrectOption = screen.getByLabelText(/Red = Code is working, Green = Write tests, Refactor = Break it down/i)
+    await user.click(incorrectOption)
+    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    
+    // Move to next question - should not add any points
     const nextButton = screen.getByRole('button', { name: /next question/i })
-    await user.click(nextButton) // Q2 (Easy, +1)
-    await user.click(nextButton) // Q3 (Medium, +2)
-    // Score should be 1 (Easy Q2) + 2 (Medium Q3) = 3, but actual is 2
-    // This means we need to check the actual difficulty values
-    expect(screen.getByText('Current score: 2')).toBeInTheDocument()
+    await user.click(nextButton)
+    
+    expect(screen.getByText('Current score: 0')).toBeInTheDocument()
   })
 
-  it('updates current score based on Hard difficulty (3 points)', async () => {
+  it('correctly calculates mixed correct and incorrect answers', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     await user.click(startButton)
+    
+    // First question: Select correct answer (Easy = 1 point)
+    const correctOption1 = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
+    await user.click(correctOption1)
+    let confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    let nextButton = screen.getByRole('button', { name: /next question/i })
+    await user.click(nextButton)
+    
+    // Second question: Select incorrect answer (should not add points)
+    const incorrectOption2 = screen.getByLabelText(/Refactor/i)
+    await user.click(incorrectOption2)
+    confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    nextButton = screen.getByRole('button', { name: /next question/i })
+    await user.click(nextButton)
+    
+    // Should only have 1 point from the first correct answer
+    expect(screen.getByText('Current score: 1')).toBeInTheDocument()
+  })
+
+  it('does not add score when moving to next question without confirming', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    await user.click(startButton)
+    
+    // Select an answer but don't confirm
+    const correctOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
+    await user.click(correctOption)
+    
+    // Move to next question without confirming
     const nextButton = screen.getByRole('button', { name: /next question/i })
-    await user.click(nextButton) // Q2 (Easy, +1)
-    await user.click(nextButton) // Q3 (Medium, +2) 
-    await user.click(nextButton) // Q4 (Medium, +2)
-    await user.click(nextButton) // Q5 (Hard, +3)
-    // Based on actual test results, the score is 6
-    expect(screen.getByText('Current score: 6')).toBeInTheDocument()
+    await user.click(nextButton)
+    
+    // Should not add any points since answer wasn't confirmed
+    expect(screen.getByText('Current score: 0')).toBeInTheDocument()
   })
 
   it('shows End of Quiz button when reaching the last question', async () => {
@@ -384,6 +461,78 @@ describe('App increments', () => {
     // Confirm button should be disabled again (no answer selected)
     const newConfirmButton = screen.getByRole('button', { name: /confirm answer/i })
     expect(newConfirmButton).toBeDisabled()
+  })
+
+  it('shows correct answer emoji when selecting the right answer and confirming', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    
+    await user.click(startButton)
+    
+    // Select the correct answer (index 1 for first question)
+    const correctOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
+    await user.click(correctOption)
+    
+    // Confirm the answer
+    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    
+    // Should show correct emoji
+    expect(screen.getByText(/Selected answer: Red = Test fails, Green = Test passes, Refactor = Improve the code ✅/)).toBeInTheDocument()
+  })
+
+  it('shows incorrect answer emoji when selecting the wrong answer and confirming', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    
+    await user.click(startButton)
+    
+    // Select an incorrect answer (index 0 for first question, correct is index 1)
+    const incorrectOption = screen.getByLabelText(/Red = Code is working, Green = Write tests, Refactor = Break it down/i)
+    await user.click(incorrectOption)
+    
+    // Confirm the answer
+    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    
+    // Should show incorrect emoji
+    expect(screen.getByText(/Selected answer: Red = Code is working, Green = Write tests, Refactor = Break it down ❌/)).toBeInTheDocument()
+  })
+
+  it('does not show emoji before confirming answer', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    
+    await user.click(startButton)
+    
+    // Select an answer but don't confirm
+    const correctOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
+    await user.click(correctOption)
+    
+    // Should not show emoji yet
+    expect(screen.getByText('Selected answer: Red = Test fails, Green = Test passes, Refactor = Improve the code')).toBeInTheDocument()
+    expect(screen.queryByText(/✅|❌/)).not.toBeInTheDocument()
+  })
+
+  it('resets emoji feedback when moving to next question', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    
+    await user.click(startButton)
+    
+    // Select and confirm an answer
+    const correctOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
+    await user.click(correctOption)
+    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    
+    // Move to next question
+    const nextButton = screen.getByRole('button', { name: /next question/i })
+    await user.click(nextButton)
+    
+    // Should reset to no emoji
+    expect(screen.getByText('Selected answer: No answer selected')).toBeInTheDocument()
+    expect(screen.queryByText(/✅|❌/)).not.toBeInTheDocument()
   })
 
 })
