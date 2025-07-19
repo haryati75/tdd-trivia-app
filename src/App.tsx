@@ -189,18 +189,25 @@ function App() {
             </Button>
           )}
           {isAnswerConfirmed && selectedAnswer && (
-            <Text>
-              {`${getAnswerFeedback().emoji} ${getAnswerFeedback().message}`}
-            </Text>
+            <>
+              <Text>
+                {`${getAnswerFeedback().emoji} ${getAnswerFeedback().message}`}
+              </Text>
+              {selectedAnswerIndex !== currentQuestion?.correct_answer && (
+                <Text>
+                  ✅ Correct answer: {currentQuestion?.options[currentQuestion.correct_answer]}
+                </Text>
+              )}
+            </>
           )}
         </Card>
       )}
       <Card>
-        {currentQuestionIndex !== -1 && currentQuestionIndex < questionsData.length && (
-          <Text>{getCurrentPerformanceEmoji()} Score: {score}/{totalPossibleScore} points • Progress: {calculateProgress()}%</Text>
-        )}
-        {currentQuestionIndex >= questionsData.length && (
-          <Text>{getCurrentPerformanceEmoji()} Score: {score}/{totalPossibleScore} points</Text>
+        {currentQuestionIndex !== -1 && (
+          <Text>
+            {getCurrentPerformanceEmoji()} Score: {score}/{totalPossibleScore} points
+            {currentQuestionIndex < questionsData.length && ` • Progress: ${calculateProgress()}%`}
+          </Text>
         )}
         {currentQuestionIndex >= questionsData.length && (
           <Text>{getFinalScoreAssessment().emoji} {getFinalScoreAssessment().message}</Text>

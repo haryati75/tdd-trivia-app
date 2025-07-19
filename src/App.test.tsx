@@ -627,4 +627,40 @@ describe('Answer Feedback', () => {
     // Should show motivational feedback
     expect(screen.getByText(/Awesome!|Fantastic!|Perfect!|Brilliant!|Excellent!|Amazing!/)).toBeInTheDocument()
   })
+
+  it('shows correct answer when wrong answer is selected', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    
+    await user.click(startButton)
+    
+    // Select incorrect answer for first question
+    const incorrectOption = screen.getByLabelText(/Red = Code is working, Green = Write tests, Refactor = Break it down/i)
+    await user.click(incorrectOption)
+    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    
+    // Should show incorrect feedback
+    expect(screen.getByText(/Oops!|Not quite!|Close,|Don't worry|Almost|No worries/)).toBeInTheDocument()
+    // Should show the correct answer
+    expect(screen.getByText(/✅ Correct answer: Red = Test fails, Green = Test passes, Refactor = Improve the code/)).toBeInTheDocument()
+  })
+
+  it('does not show correct answer when correct answer is selected', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    
+    await user.click(startButton)
+    
+    // Select correct answer for first question
+    const correctOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
+    await user.click(correctOption)
+    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    
+    // Should show correct feedback
+    expect(screen.getByText(/Awesome!|Fantastic!|Perfect!|Brilliant!|Excellent!|Amazing!/)).toBeInTheDocument()
+    // Should NOT show the correct answer (since they got it right)
+    expect(screen.queryByText(/✅ Correct answer:/)).not.toBeInTheDocument()
+  })
 })

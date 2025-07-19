@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Card from './Card'
 
 interface RadioButtonGroupProps {
   options: string[]
@@ -25,18 +26,23 @@ function RadioButtonGroup({ options, onSelectionChange, name, disabled = false }
   return (
     <div>
       {options.map((option, index) => (
-        <label key={index} style={{ display: 'block', marginBottom: '8px' }}>
-          <input
-            type="radio"
-            name={groupName}
-            value={option}
-            checked={selectedValue === option}
-            onChange={() => handleChange(option, index)}
-            disabled={disabled}
-            style={{ marginRight: '8px' }}
-          />
-          {option}
-        </label>
+        <Card 
+          key={index} 
+          className={`radio-option-card ${selectedValue === option ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
+        >
+          <label style={{ display: 'block', margin: 0, cursor: disabled ? 'default' : 'pointer' }}>
+            <input
+              type="radio"
+              name={groupName}
+              value={option}
+              checked={selectedValue === option}
+              onChange={() => handleChange(option, index)}
+              disabled={disabled}
+              style={{ marginRight: '8px' }}
+            />
+            {option}
+          </label>
+        </Card>
       ))}
     </div>
   )
