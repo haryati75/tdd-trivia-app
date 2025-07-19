@@ -4,6 +4,7 @@ import Button from './components/Button'
 import Text from './components/Text'
 import Card from './components/Card'
 import RadioButtonGroup from './components/RadioButtonGroup'
+import Footer from './components/Footer'
 import questionsData from './questions.json'
 
 const DIFFICULTY_SCORES = {
@@ -257,6 +258,7 @@ function App() {
           </Button>
         )}
       </Card>
+      <Footer />
     </>
   )
 }

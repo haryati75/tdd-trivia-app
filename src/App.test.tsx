@@ -28,6 +28,14 @@ describe('Initial Rendering', () => {
     // Score should not be visible initially
     expect(screen.queryByText(/Score: \d+\/\d+ points/)).not.toBeInTheDocument()
   })
+
+  it('renders footer with developer information', () => {
+    render(<App />)
+    
+    // Footer should always be visible
+    expect(screen.getByText(/Haryati Hassan/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /view on github/i })).toBeInTheDocument()
+  })
 })
 
 describe('Quiz Navigation', () => {
