@@ -18,6 +18,8 @@ function App() {
   const [selectedAnswer, setSelectedAnswer] = useState<string>('')
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number>(-1)
   const [isAnswerConfirmed, setIsAnswerConfirmed] = useState(false)
+  const [startTime, setStartTime] = useState<Date | null>(null)
+  const [endTime, setEndTime] = useState<Date | null>(null)
 
   const currentQuestion = currentQuestionIndex >= 0 ? questionsData[currentQuestionIndex] : null
 
@@ -44,7 +46,13 @@ function App() {
     setSelectedAnswer('') // Reset selection for next question
     setSelectedAnswerIndex(-1) // Reset answer index for next question
     setIsAnswerConfirmed(false) // Reset confirmation for next question
-    setCurrentQuestionIndex((index) => index + 1)
+    const nextIndex = currentQuestionIndex + 1
+    setCurrentQuestionIndex(nextIndex)
+    
+    // Set end time when quiz is completed
+    if (nextIndex >= questionsData.length) {
+      setEndTime(new Date())
+    }
   }
 
   const handleEndQuiz = () => {
@@ -52,6 +60,8 @@ function App() {
     setSelectedAnswer('')
     setSelectedAnswerIndex(-1)
     setIsAnswerConfirmed(false)
+    setStartTime(null)
+    setEndTime(null)
   }
 
   const handleStartQuiz = () => {
@@ -60,6 +70,8 @@ function App() {
     setSelectedAnswer('')
     setSelectedAnswerIndex(-1)
     setIsAnswerConfirmed(false)
+    setStartTime(new Date())
+    setEndTime(null)
   }
 
   const handleAnswerSelection = (value: string, index: number) => {
@@ -164,6 +176,20 @@ function App() {
     }
   }
 
+  const formatCompletionTime = () => {
+    if (!startTime || !endTime) return ''
+    
+    const durationMs = endTime.getTime() - startTime.getTime()
+    const minutes = Math.floor(durationMs / 60000)
+    const seconds = Math.floor((durationMs % 60000) / 1000)
+    
+    if (minutes > 0) {
+      return `🕒 Completed in ${minutes}m ${seconds}s`
+    } else {
+      return `🕒 Completed in ${seconds}s`
+    }
+  }
+
   return (
     <>
       <Text variant="heading" level={1}>TDD Trivia</Text>
@@ -210,7 +236,12 @@ function App() {
           </Text>
         )}
         {currentQuestionIndex >= questionsData.length && (
-          <Text>{getFinalScoreAssessment().emoji} {getFinalScoreAssessment().message}</Text>
+          <>
+            <Text>{getFinalScoreAssessment().emoji} {getFinalScoreAssessment().message}</Text>
+            {formatCompletionTime() && (
+              <Text>{formatCompletionTime()}</Text>
+            )}
+          </>
         )}
         {currentQuestionIndex === -1 ? (
           <Button onClick={handleStartQuiz}>

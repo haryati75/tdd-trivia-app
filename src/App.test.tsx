@@ -178,6 +178,39 @@ describe('Quiz Navigation', () => {
     // Should show final score assessment with emoji and message
     expect(screen.getByText(/Outstanding|Excellent|Great|Good|Not bad|Keep trying|Don't give up/)).toBeInTheDocument()
   })
+
+  it('displays completion time at end of quiz', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    
+    await user.click(startButton)
+    
+    // Complete the quiz quickly
+    for (let i = 0; i < 10; i++) {
+      const nextButton = screen.getByRole('button', { name: /next question/i })
+      await user.click(nextButton)
+    }
+    
+    // Should show completion time
+    expect(screen.getByText(/🕒 Completed in/)).toBeInTheDocument()
+  })
+
+  it('does not show completion time during quiz', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    
+    await user.click(startButton)
+    
+    // During quiz, should not show completion time
+    expect(screen.queryByText(/🕒 Completed in/)).not.toBeInTheDocument()
+  })
+
+  it('does not show completion time before starting quiz', async () => {
+    render(<App />)
+    
+    // Before starting, should not show completion time
+    expect(screen.queryByText(/🕒 Completed in/)).not.toBeInTheDocument()
+  })
 })
 
 describe('Question Display', () => {
