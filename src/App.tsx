@@ -41,10 +41,6 @@ function App() {
   }
 
   const handleNextQuestion = () => {
-    if (currentQuestion && isAnswerConfirmed && selectedAnswerIndex === currentQuestion.correct_answer) {
-      const currentQuestionScore = DIFFICULTY_SCORES[currentQuestion.difficulty_level as keyof typeof DIFFICULTY_SCORES]
-      setScore((score) => score + currentQuestionScore)
-    }
     setSelectedAnswer('') // Reset selection for next question
     setSelectedAnswerIndex(-1) // Reset answer index for next question
     setIsAnswerConfirmed(false) // Reset confirmation for next question
@@ -74,6 +70,12 @@ function App() {
 
   const handleConfirmAnswer = () => {
     setIsAnswerConfirmed(true)
+    
+    // Update score immediately when confirming answer
+    if (currentQuestion && selectedAnswerIndex === currentQuestion.correct_answer) {
+      const currentQuestionScore = DIFFICULTY_SCORES[currentQuestion.difficulty_level as keyof typeof DIFFICULTY_SCORES]
+      setScore((score) => score + currentQuestionScore)
+    }
   }
 
   const getAnswerEmoji = () => {
@@ -89,7 +91,6 @@ function App() {
     <>
       <Text variant="heading" level={1}>TDD Trivia</Text>
       <Card>
-        <Text>Loaded {questionsData.length} questions</Text>
         <Text>Score: {score}/{totalPossibleScore} points • Progress: {Math.round(((currentQuestionIndex + 1) / questionsData.length) * 100)}% completed</Text>
         {currentQuestionIndex === -1 ? (
           <Button onClick={handleStartQuiz}>

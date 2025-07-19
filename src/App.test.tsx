@@ -22,13 +22,6 @@ describe('App renders', () => {
     expect(button).toBeInTheDocument()
   })
 
-  it('the loaded questions count as paragraph', () => {
-    render(<App />)
-    const questionsCount = screen.getByText(/loaded \d+ questions/i)
-    expect(questionsCount).toBeInTheDocument()
-    expect(questionsCount.tagName).toBe('P')
-  })
-
   it('the total possible score as paragraph', () => {
     render(<App />)
     const totalScore = screen.getByText(/Score: \d+\/\d+ points/)
@@ -158,6 +151,46 @@ describe('App increments', () => {
     await user.click(nextButton) // Q4 (no answer confirmed)
     await user.click(nextButton) // Q5 (no answer confirmed)
     // No answers confirmed, score should remain 0
+    expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
+  })
+
+  it('updates score immediately when confirming correct answer', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    await user.click(startButton)
+    
+    // Select correct answer for first question
+    const correctOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
+    await user.click(correctOption)
+    
+    // Score should still be 0 before confirming
+    expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
+    
+    // Confirm answer - should immediately update score to 1 point for Easy correct answer
+    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    
+    // Score should be updated immediately after confirming, before clicking Next
+    expect(screen.getByText(/Score: 1\/\d+ points/)).toBeInTheDocument()
+  })
+
+  it('does not update score when confirming incorrect answer', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    await user.click(startButton)
+    
+    // Select incorrect answer for first question
+    const incorrectOption = screen.getByLabelText(/Red = Code is working, Green = Write tests, Refactor = Break it down/i)
+    await user.click(incorrectOption)
+    
+    // Score should still be 0 before confirming
+    expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
+    
+    // Confirm answer - should not update score for incorrect answer
+    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    
+    // Score should remain 0 after confirming incorrect answer
     expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
   })
 
