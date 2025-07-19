@@ -78,20 +78,114 @@ function App() {
     }
   }
 
-  const getAnswerEmoji = () => {
+  const calculateProgress = () => {
+    if (currentQuestionIndex >= questionsData.length) {
+      return 100
+    }
+    return Math.round(((currentQuestionIndex + 1) / questionsData.length) * 100)
+  }
+
+  const getAnswerFeedback = () => {
     if (!isAnswerConfirmed || !currentQuestion || selectedAnswerIndex === -1) {
-      return ''
+      return { message: '', emoji: '' }
     }
     
     const isCorrect = selectedAnswerIndex === currentQuestion.correct_answer
-    return isCorrect ? ' ✅' : ' ❌'
+    if (isCorrect) {
+      const correctMessages = [
+        "Awesome! You nailed it!",
+        "Fantastic! You're on fire!",
+        "Perfect! Keep it up!",
+        "Brilliant! You got it right!",
+        "Excellent! Well done!",
+        "Amazing! You're crushing it!"
+      ]
+      const correctEmojis = ['🎉', '🚀', '⭐', '🎯', '💯', '🔥']
+      const randomIndex = Math.floor(Math.random() * correctMessages.length)
+      return {
+        message: correctMessages[randomIndex],
+        emoji: correctEmojis[randomIndex]
+      }
+    } else {
+      const wrongMessages = [
+        "Oops! Better luck next time!",
+        "Not quite! Keep trying!",
+        "Close, but not quite right!",
+        "Don't worry, learning is a journey!",
+        "Almost there! You'll get the next one!",
+        "No worries, every mistake is a lesson!"
+      ]
+      const wrongEmojis = ['💪', '🎯', '📚', '🌟', '🚀', '💡']
+      const randomIndex = Math.floor(Math.random() * wrongMessages.length)
+      return {
+        message: wrongMessages[randomIndex],
+        emoji: wrongEmojis[randomIndex]
+      }
+    }
+  }
+
+  const getFinalScoreAssessment = () => {
+    const percentage = Math.round((score / totalPossibleScore) * 100)
+    
+    if (percentage >= 90) {
+      return { emoji: '🏆', message: 'Outstanding! You\'re a trivia champion!' }
+    } else if (percentage >= 80) {
+      return { emoji: '🌟', message: 'Excellent work! You really know your stuff!' }
+    } else if (percentage >= 70) {
+      return { emoji: '👏', message: 'Great job! Well done on that performance!' }
+    } else if (percentage >= 60) {
+      return { emoji: '👍', message: 'Good effort! You\'re getting there!' }
+    } else if (percentage >= 50) {
+      return { emoji: '📚', message: 'Not bad! Keep studying and you\'ll improve!' }
+    } else if (percentage >= 30) {
+      return { emoji: '💪', message: 'Keep trying! Practice makes perfect!' }
+    } else {
+      return { emoji: '🎯', message: 'Don\'t give up! Every expert was once a beginner!' }
+    }
   }
 
   return (
     <>
       <Text variant="heading" level={1}>TDD Trivia</Text>
+      {currentQuestion && (
+        <Card data-testid="question-card">
+          <Text>
+            {formatCategoryAndDifficulty(currentQuestion.category, currentQuestion.difficulty_level)}
+          </Text>
+          <Text variant="heading" level={3}>
+            Question {currentQuestion.id}: {currentQuestion.question}
+          </Text>
+          <RadioButtonGroup 
+            options={currentQuestion.options}
+            onSelectionChange={handleAnswerSelection}
+            name={`question-${currentQuestionIndex}`}
+            disabled={isAnswerConfirmed}
+          />
+          {selectedAnswer && !isAnswerConfirmed && (
+            <Button 
+              onClick={handleConfirmAnswer}
+            >
+              Confirm Answer
+            </Button>
+          )}
+          {selectedAnswer && (
+            <Text>
+              {isAnswerConfirmed ? (
+                `${getAnswerFeedback().emoji} ${getAnswerFeedback().message}`
+              ) : (
+                `Selected answer: ${selectedAnswer}`
+              )}
+            </Text>
+          )}
+        </Card>
+      )}
       <Card>
-        <Text>Score: {score}/{totalPossibleScore} points • Progress: {Math.round(((currentQuestionIndex + 1) / questionsData.length) * 100)}%</Text>
+        {currentQuestionIndex !== -1 && (
+          <Text>Score: {score}/{totalPossibleScore} points • Progress: {calculateProgress()}%</Text>
+        )}
+        {currentQuestionIndex >= questionsData.length && (
+          <Text>{getFinalScoreAssessment().emoji} {getFinalScoreAssessment().message}</Text>
+        )}
         {currentQuestionIndex === -1 ? (
           <Button onClick={handleStartQuiz}>
             Start Quiz
@@ -106,31 +200,6 @@ function App() {
           </Button>
         )}
       </Card>
-      {currentQuestion && (
-        <Card data-testid="question-card">
-          <Text variant="heading" level={3}>
-            Question {currentQuestion.id}: {currentQuestion.question}
-          </Text>
-          <Text>
-            {formatCategoryAndDifficulty(currentQuestion.category, currentQuestion.difficulty_level)}
-          </Text>
-          <RadioButtonGroup 
-            options={currentQuestion.options}
-            onSelectionChange={handleAnswerSelection}
-            name={`question-${currentQuestionIndex}`}
-            disabled={isAnswerConfirmed}
-          />
-          <Button 
-            onClick={handleConfirmAnswer}
-            disabled={!selectedAnswer || isAnswerConfirmed}
-          >
-            Confirm Answer
-          </Button>
-          <Text>
-            Selected answer: {selectedAnswer || 'No answer selected'}{getAnswerEmoji()}
-          </Text>
-        </Card>
-      )}
     </>
   )
 }

@@ -22,15 +22,20 @@ describe('App renders', () => {
     expect(button).toBeInTheDocument()
   })
 
-  it('the total possible score as paragraph', () => {
+  it('does not show score initially', () => {
     render(<App />)
-    const totalScore = screen.getByText(/Score: \d+\/\d+ points/)
-    expect(totalScore).toBeInTheDocument()
-    expect(totalScore.tagName).toBe('P')
+    
+    // Score should not be visible initially
+    expect(screen.queryByText(/Score: \d+\/\d+ points/)).not.toBeInTheDocument()
   })
 
-  it('the current score initially shows 0', () => {
+  it('displays score after quiz starts', async () => {
+    const user = userEvent.setup()
     render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    
+    await user.click(startButton)
+    
     const currentScore = screen.getByText(/Score: 0\/\d+ points/)
     expect(currentScore).toBeInTheDocument()
     expect(currentScore.tagName).toBe('P')
@@ -309,6 +314,23 @@ describe('App increments', () => {
     expect(screen.queryByTestId('question-card')).not.toBeInTheDocument()
   })
 
+  it('shows final score assessment when quiz is completed', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    
+    await user.click(startButton)
+    
+    // Click through all questions to get to the end
+    for (let i = 0; i < 10; i++) {
+      const nextButton = screen.getByRole('button', { name: /next question/i })
+      await user.click(nextButton)
+    }
+    
+    // Should show final score assessment with emoji and message
+    expect(screen.getByText(/🏆|🌟|👏|👍|📚|💪|🎯/)).toBeInTheDocument()
+    expect(screen.getByText(/Outstanding|Excellent|Great|Good|Not bad|Keep trying|Don't give up/)).toBeInTheDocument()
+  })
+
   it('displays category and difficulty with emoji for Easy questions', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
@@ -355,18 +377,6 @@ describe('App increments', () => {
     expect(categoryDifficulty).toBeInTheDocument()
   })
 
-  it('displays selected answer text when no answer is selected', async () => {
-    render(<App />)
-    const startButton = screen.getByRole('button', { name: /start quiz/i })
-    
-    await user.click(startButton)
-    
-    // Should show "No answer selected" initially
-    const selectedAnswerText = screen.getByText('Selected answer: No answer selected')
-    expect(selectedAnswerText).toBeInTheDocument()
-    expect(selectedAnswerText.tagName).toBe('P')
-  })
-
   it('displays selected answer text when an answer is selected', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
@@ -382,37 +392,15 @@ describe('App increments', () => {
     expect(selectedAnswerText).toBeInTheDocument()
   })
 
-  it('resets selected answer text when moving to next question', async () => {
+  it('does not display confirm answer button when no answer is selected', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     
     await user.click(startButton)
     
-    // Select an answer
-    const firstOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
-    await user.click(firstOption)
-    
-    // Verify answer is selected
-    expect(screen.getByText('Selected answer: Red = Test fails, Green = Test passes, Refactor = Improve the code')).toBeInTheDocument()
-    
-    // Move to next question
-    const nextButton = screen.getByRole('button', { name: /next question/i })
-    await user.click(nextButton)
-    
-    // Should reset to "No answer selected"
-    expect(screen.getByText('Selected answer: No answer selected')).toBeInTheDocument()
-  })
-
-  it('displays confirm answer button when no answer is selected', async () => {
-    render(<App />)
-    const startButton = screen.getByRole('button', { name: /start quiz/i })
-    
-    await user.click(startButton)
-    
-    // Should show confirm button but it should be disabled when no answer is selected
-    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
-    expect(confirmButton).toBeInTheDocument()
-    expect(confirmButton).toBeDisabled()
+    // Should not show confirm button when no answer is selected
+    const confirmButton = screen.queryByRole('button', { name: /confirm answer/i })
+    expect(confirmButton).not.toBeInTheDocument()
   })
 
   it('enables confirm answer button when an answer is selected', async () => {
@@ -425,8 +413,9 @@ describe('App increments', () => {
     const firstOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
     await user.click(firstOption)
     
-    // Confirm button should now be enabled
+    // Confirm button should now appear and be enabled
     const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    expect(confirmButton).toBeInTheDocument()
     expect(confirmButton).toBeEnabled()
   })
 
@@ -451,25 +440,7 @@ describe('App increments', () => {
     })
   })
 
-  it('disables confirm button after confirming answer', async () => {
-    render(<App />)
-    const startButton = screen.getByRole('button', { name: /start quiz/i })
-    
-    await user.click(startButton)
-    
-    // Select an answer
-    const firstOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
-    await user.click(firstOption)
-    
-    // Confirm the answer
-    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
-    await user.click(confirmButton)
-    
-    // Confirm button should be disabled after confirmation
-    expect(confirmButton).toBeDisabled()
-  })
-
-  it('re-enables radio buttons and confirm button for next question', async () => {
+  it('re-enables radio buttons for next question', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     
@@ -491,12 +462,12 @@ describe('App increments', () => {
       expect(button).toBeEnabled()
     })
     
-    // Confirm button should be disabled again (no answer selected)
-    const newConfirmButton = screen.getByRole('button', { name: /confirm answer/i })
-    expect(newConfirmButton).toBeDisabled()
+    // Confirm button should not be present (no answer selected)
+    const newConfirmButton = screen.queryByRole('button', { name: /confirm answer/i })
+    expect(newConfirmButton).not.toBeInTheDocument()
   })
 
-  it('shows correct answer emoji when selecting the right answer and confirming', async () => {
+  it('shows correct answer feedback when selecting the right answer and confirming', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     
@@ -510,11 +481,12 @@ describe('App increments', () => {
     const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
     await user.click(confirmButton)
     
-    // Should show correct emoji
-    expect(screen.getByText(/Selected answer: Red = Test fails, Green = Test passes, Refactor = Improve the code ✅/)).toBeInTheDocument()
+    // Should show motivational feedback with fun emoji for correct answer
+    expect(screen.getByText(/🎉|🚀|⭐|🎯|💯|🔥/)).toBeInTheDocument()
+    expect(screen.getByText(/Awesome!|Fantastic!|Perfect!|Brilliant!|Excellent!|Amazing!/)).toBeInTheDocument()
   })
 
-  it('shows incorrect answer emoji when selecting the wrong answer and confirming', async () => {
+  it('shows incorrect answer feedback when selecting the wrong answer and confirming', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     
@@ -528,11 +500,12 @@ describe('App increments', () => {
     const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
     await user.click(confirmButton)
     
-    // Should show incorrect emoji
-    expect(screen.getByText(/Selected answer: Red = Code is working, Green = Write tests, Refactor = Break it down ❌/)).toBeInTheDocument()
+    // Should show motivational feedback with fun emoji for incorrect answer
+    expect(screen.getByText(/💪|🎯|📚|🌟|🚀|💡/)).toBeInTheDocument()
+    expect(screen.getByText(/Oops!|Not quite!|Close,|Don't worry|Almost|No worries/)).toBeInTheDocument()
   })
 
-  it('does not show emoji before confirming answer', async () => {
+  it('does not show motivational feedback before confirming answer', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     
@@ -542,12 +515,12 @@ describe('App increments', () => {
     const correctOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
     await user.click(correctOption)
     
-    // Should not show emoji yet
+    // Should show selected answer but no motivational feedback yet
     expect(screen.getByText('Selected answer: Red = Test fails, Green = Test passes, Refactor = Improve the code')).toBeInTheDocument()
-    expect(screen.queryByText(/✅|❌/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/🎉|🚀|⭐|🎯|💯|🔥|💪|📚|🌟|💡/)).not.toBeInTheDocument()
   })
 
-  it('resets emoji feedback when moving to next question', async () => {
+  it('hides selected answer text when moving to next question', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     
@@ -563,9 +536,9 @@ describe('App increments', () => {
     const nextButton = screen.getByRole('button', { name: /next question/i })
     await user.click(nextButton)
     
-    // Should reset to no emoji
-    expect(screen.getByText('Selected answer: No answer selected')).toBeInTheDocument()
-    expect(screen.queryByText(/✅|❌/)).not.toBeInTheDocument()
+    // Should not show any selected answer text or motivational feedback
+    expect(screen.queryByText(/Selected answer:/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/🎉|🚀|⭐|🎯|💯|🔥|💪|📚|🌟|💡/)).not.toBeInTheDocument()
   })
 
 })
