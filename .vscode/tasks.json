@@ -1,0 +1,195 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // Development Tasks
+    {
+      "label": "🚀 Start Dev Server",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev"],
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": {
+          "regexp": ".*"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Local:.*",
+          "endsPattern": ".*ready in.*"
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "🔨 Build Production",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "build"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$tsc"]
+    },
+
+    // Unit Testing Tasks
+    {
+      "label": "🧪 Test: Unit (Watch)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["test"],
+      "group": "test",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "🧪 Test: Unit (Run Once)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["test", "run"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "📊 Test: Unit with Coverage",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:coverage"],
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated"
+      }
+    },
+
+    // E2E Testing Tasks
+    {
+      "label": "🎭 Test: E2E (Playwright)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:e2e"],
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "🎭 Test: E2E with UI",
+      "type": "shell",
+      "command": "npx",
+      "args": ["playwright", "test", "--ui"],
+      "group": "test",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated"
+      }
+    },
+
+    // Report Viewing Tasks (Internal)
+    {
+      "label": "_serve-coverage-report",
+      "type": "shell",
+      "command": "npx",
+      "args": ["http-server", "coverage", "-p", "8080", "-o", "-c-1"],
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "echo": false,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+
+    // Composite Report Tasks
+    {
+      "label": "📊 View: Coverage Report",
+      "dependsOrder": "sequence",
+      "dependsOn": ["📊 Test: Unit with Coverage", "_serve-coverage-report"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "📊 View: Coverage Report (Quick)",
+      "type": "shell",
+      "command": "npx",
+      "args": ["http-server", "coverage", "-p", "8080", "-o", "-c-1"],
+      "group": "test",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "🎭 View: Playwright Report",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:e2e:report"],
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+
+    // Comprehensive Testing Tasks
+    {
+      "label": "🧪 Test: All (Unit + E2E)",
+      "dependsOrder": "sequence",
+      "dependsOn": ["🧪 Test: Unit (Run Once)", "🎭 Test: E2E (Playwright)"],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "📊 Test: All with Reports",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "📊 Test: Unit with Coverage",
+        "🎭 Test: E2E (Playwright)",
+        "📊 View: Coverage Report (Quick)",
+        "🎭 View: Playwright Report"
+      ],
+      "group": "test"
+    }
+  ]
+}

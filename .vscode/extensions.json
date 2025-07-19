@@ -1,0 +1,36 @@
+{
+  "recommendations": [
+    // Essential TypeScript & React
+    "ms-vscode.vscode-typescript-next",
+    "ms-vscode.vscode-eslint",
+    "esbenp.prettier-vscode",
+    
+    // React Development
+    "dsznajder.es7-react-js-snippets",
+    "ms-vscode.vscode-react-native",
+    
+    // Testing
+    "ms-playwright.playwright",
+    "vitest.explorer",
+    "hbenl.vscode-test-explorer",
+    
+    // Build Tools & Development
+    "antfu.vite",
+    "bradlc.vscode-tailwindcss",
+    
+    // Utilities
+    "ms-vscode.vscode-json",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "ms-vscode.live-server",
+    
+    // Git & Version Control
+    "github.vscode-github-actions",
+    "github.vscode-pull-request-github",
+    
+    // Optional but Helpful
+    "usernamehw.errorlens",
+    "gruntfuggly.todo-tree",
+    "ms-vscode.vscode-typescript-tslint-plugin"
+  ]
+}

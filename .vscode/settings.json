@@ -1,0 +1,22 @@
+{
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "typescript.suggest.autoImports": true,
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact"
+    ],
+    "files.associations": {
+        "*.css": "css"
+    },
+    "emmet.includeLanguages": {
+        "javascriptreact": "html",
+        "typescriptreact": "html"
+    }
+}
