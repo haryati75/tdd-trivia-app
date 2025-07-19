@@ -348,7 +348,7 @@ describe('Answer Selection & Confirmation', () => {
     await user.click(confirmButton)
     
     // All radio buttons should be disabled
-    const radioButtons = screen.getAllByRole('radio')
+    const radioButtons = screen.getAllByRole('radio', { hidden: true })
     radioButtons.forEach(button => {
       expect(button).toBeDisabled()
     })
@@ -371,7 +371,7 @@ describe('Answer Selection & Confirmation', () => {
     await user.click(nextButton)
     
     // Radio buttons should be enabled again for the new question
-    const radioButtons = screen.getAllByRole('radio')
+    const radioButtons = screen.getAllByRole('radio', { hidden: true })
     radioButtons.forEach(button => {
       expect(button).toBeEnabled()
     })
@@ -569,7 +569,7 @@ describe('Scoring System', () => {
       }
       
       // Check if there are radio buttons available (meaning we have a question)
-      const options = screen.queryAllByRole('radio')
+      const options = screen.queryAllByRole('radio', { hidden: true })
       if (options.length === 0) {
         break
       }

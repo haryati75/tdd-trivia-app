@@ -38,6 +38,7 @@ function RadioButtonGroup({ options, onSelectionChange, name, disabled = false }
               checked={selectedValue === option}
               onChange={() => handleChange(option, index)}
               disabled={disabled}
+              hidden
               style={{ marginRight: '8px' }}
             />
             {option}

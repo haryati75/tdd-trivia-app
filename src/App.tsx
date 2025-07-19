@@ -192,9 +192,10 @@ function App() {
   }
 
   return (
-    <>
-      <Text variant="heading" level={1}>TDD Trivia</Text>
-      {currentQuestion && (
+    <div className="app-container">
+      <div className="main-content">
+        <Text variant="heading" level={1}>TDD Trivia</Text>
+        {currentQuestion && (
         <Card data-testid="question-card">
           <Text>
             {formatCategoryAndDifficulty(currentQuestion.category, currentQuestion.difficulty_level)}
@@ -258,8 +259,9 @@ function App() {
           </Button>
         )}
       </Card>
-      <Footer />
-    </>
+      </div>
+      {(currentQuestionIndex === -1 || currentQuestionIndex >= questionsData.length) && <Footer />}
+    </div>
   )
 }
 

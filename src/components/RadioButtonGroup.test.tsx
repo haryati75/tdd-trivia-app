@@ -23,7 +23,7 @@ describe('RadioButtonGroup', () => {
   it('groups radio buttons under the same name attribute', () => {
     render(<RadioButtonGroup options={mockOptions} onSelectionChange={mockCallback} />)
     
-    const radioButtons = screen.getAllByRole('radio')
+    const radioButtons = screen.getAllByRole('radio', { hidden: true })
     const groupName = radioButtons[0].getAttribute('name')
     
     radioButtons.forEach(button => {
@@ -77,7 +77,7 @@ describe('RadioButtonGroup', () => {
   it('accepts optional name prop for grouping', () => {
     render(<RadioButtonGroup options={mockOptions} onSelectionChange={mockCallback} name="custom-group" />)
     
-    const radioButtons = screen.getAllByRole('radio')
+    const radioButtons = screen.getAllByRole('radio', { hidden: true })
     radioButtons.forEach(button => {
       expect(button).toHaveAttribute('name', 'custom-group')
     })
@@ -86,7 +86,7 @@ describe('RadioButtonGroup', () => {
   it('renders with empty options array', () => {
     render(<RadioButtonGroup options={[]} onSelectionChange={mockCallback} />)
     
-    const radioButtons = screen.queryAllByRole('radio')
+    const radioButtons = screen.queryAllByRole('radio', { hidden: true })
     expect(radioButtons).toHaveLength(0)
   })
 })
