@@ -1,0 +1,132 @@
+[
+  {
+    "id": 1,
+    "question": "What does each step in the TDD cycle represent?",
+    "options": [
+      "Red = Code is working, Green = Write tests, Refactor = Break it down",
+      "Red = Test fails, Green = Test passes, Refactor = Improve the code",
+      "Red = Add features, Green = Push to production, Refactor = Debug",
+      "Red = Debugging, Green = Compiling, Refactor = Fixing typos"
+    ],
+    "correct_answer": 1,
+    "category": "TDD Basics",
+    "difficulty_level": "Easy"
+  },
+  {
+    "id": 2,
+    "question": "During which TDD stage do you write a failing test to confirm a missing feature?",
+    "options": [
+      "Refactor",
+      "Green",
+      "Red",
+      "Deploy"
+    ],
+    "correct_answer": 2,
+    "category": "TDD Cycle",
+    "difficulty_level": "Easy"
+  },
+  {
+    "id": 3,
+    "question": "In the React TodoItem example from the lecture, what was tested first?",
+    "options": [
+      "That the component mounts without error",
+      "That clicking the item adds a new one",
+      "That clicking the item marks it as done with a line-through",
+      "That the item can be deleted"
+    ],
+    "correct_answer": 2,
+    "category": "Applied TDD",
+    "difficulty_level": "Medium"
+  },
+  {
+    "id": 4,
+    "question": "What might go wrong if we skip the test-first step in TDD?",
+    "options": [
+      "Tests run faster but are more accurate",
+      "Code may become harder to refactor safely",
+      "We always write more reusable code",
+      "Nothing changes; TDD is optional fluff"
+    ],
+    "correct_answer": 1,
+    "category": "TDD Best Practices",
+    "difficulty_level": "Medium"
+  },
+  {
+    "id": 5,
+    "question": "Which company treats “test mode” as a first-class product in their TDD workflow?",
+    "options": [
+      "Google",
+      "Stripe",
+      "Meta",
+      "Amazon"
+    ],
+    "correct_answer": 1,
+    "category": "Real-World TDD",
+    "difficulty_level": "Hard"
+  },
+  {
+    "id": 6,
+    "question": "Which of the following is a real-world benefit of TDD seen in companies like Google or Stripe?",
+    "options": [
+      "It slows down the development to ensure perfection",
+      "It guarantees 100% bug-free software",
+      "It clarifies design and enables safer, faster changes",
+      "It reduces the need for team communication"
+    ],
+    "correct_answer": 2,
+    "category": "Real-World TDD",
+    "difficulty_level": "Medium"
+  },
+  {
+    "id": 7,
+    "question": "Which security threat test prevents client-side script injection?",
+    "options": [
+      "SQL Injection",
+      "Cross-Site Scripting (XSS)",
+      "CSRF",
+      "Rate Limiting"
+    ],
+    "correct_answer": 1,
+    "category": "TDD & Security",
+    "difficulty_level": "Easy"
+  },
+  {
+    "id": 8,
+    "question": "Why do we establish “Security Acceptance Criteria” before writing code?",
+    "options": [
+      "To outline how a feature could be misused",
+      "To skip writing automated tests",
+      "To speed up manual QA",
+      "To remove the need for refactoring"
+    ],
+    "correct_answer": 0,
+    "category": "TDD & Security",
+    "difficulty_level": "Medium"
+  },
+  {
+    "id": 9,
+    "question": "Which of these is a benefit of combining TDD with pair programming?",
+    "options": [
+      "Faster feedback loops",
+      "Reduced test coverage",
+      "Only one developer writes tests",
+      "Skipping the refactor step"
+    ],
+    "correct_answer": 0,
+    "category": "Team Collaboration",
+    "difficulty_level": "Easy"
+  },
+  {
+    "id": 10,
+    "question": "In the slides’ tools table, which library “tests UI like a user”?",
+    "options": [
+      "Vitest",
+      "React Testing Library",
+      "Playwright",
+      "Istanbul"
+    ],
+    "correct_answer": 1,
+    "category": "Testing Tools",
+    "difficulty_level": "Medium"
+  }
+]

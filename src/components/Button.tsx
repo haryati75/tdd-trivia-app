@@ -1,7 +1,12 @@
-export default function Button({ text }: { text: string }) {
+interface ButtonProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+}
+
+export default function Button({ children, onClick }: ButtonProps) {
   return (
-    <button>
-      {text}
+    <button onClick={onClick}>
+      {children}
     </button>
   )
 }
