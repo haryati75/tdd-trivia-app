@@ -239,21 +239,6 @@ describe('Answer Selection & Confirmation', () => {
     user = userEvent.setup()
   })
 
-  it('displays selected answer text when an answer is selected', async () => {
-    render(<App />)
-    const startButton = screen.getByRole('button', { name: /start quiz/i })
-    
-    await user.click(startButton)
-    
-    // Select the first answer option
-    const firstOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
-    await user.click(firstOption)
-    
-    // Should show the selected answer
-    const selectedAnswerText = screen.getByText('Selected answer: Red = Test fails, Green = Test passes, Refactor = Improve the code')
-    expect(selectedAnswerText).toBeInTheDocument()
-  })
-
   it('does not display confirm answer button when no answer is selected', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
@@ -536,7 +521,7 @@ describe('Answer Feedback', () => {
     expect(screen.getByText(/Oops!|Not quite!|Close,|Don't worry|Almost|No worries/)).toBeInTheDocument()
   })
 
-  it('does not show motivational feedback before confirming answer', async () => {
+  it('does not show any text before confirming answer', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     
@@ -546,12 +531,11 @@ describe('Answer Feedback', () => {
     const correctOption = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
     await user.click(correctOption)
     
-    // Should show selected answer but no motivational feedback yet
-    expect(screen.getByText('Selected answer: Red = Test fails, Green = Test passes, Refactor = Improve the code')).toBeInTheDocument()
+    // Should not show any feedback text yet
     expect(screen.queryByText(/🎉|🚀|⭐|🎯|💯|🔥|💪|📚|🌟|💡/)).not.toBeInTheDocument()
   })
 
-  it('hides selected answer text when moving to next question', async () => {
+  it('shows only feedback message after confirming answer', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     
@@ -563,12 +547,8 @@ describe('Answer Feedback', () => {
     const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
     await user.click(confirmButton)
     
-    // Move to next question
-    const nextButton = screen.getByRole('button', { name: /next question/i })
-    await user.click(nextButton)
-    
-    // Should not show any selected answer text or motivational feedback
-    expect(screen.queryByText(/Selected answer:/)).not.toBeInTheDocument()
-    expect(screen.queryByText(/🎉|🚀|⭐|🎯|💯|🔥|💪|📚|🌟|💡/)).not.toBeInTheDocument()
+    // Should show motivational feedback
+    expect(screen.getByText(/🎉|🚀|⭐|🎯|💯|🔥/)).toBeInTheDocument()
+    expect(screen.getByText(/Awesome!|Fantastic!|Perfect!|Brilliant!|Excellent!|Amazing!/)).toBeInTheDocument()
   })
 })

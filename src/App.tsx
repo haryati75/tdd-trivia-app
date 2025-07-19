@@ -168,13 +168,9 @@ function App() {
               Confirm Answer
             </Button>
           )}
-          {selectedAnswer && (
+          {isAnswerConfirmed && selectedAnswer && (
             <Text>
-              {isAnswerConfirmed ? (
-                `${getAnswerFeedback().emoji} ${getAnswerFeedback().message}`
-              ) : (
-                `Selected answer: ${selectedAnswer}`
-              )}
+              {`${getAnswerFeedback().emoji} ${getAnswerFeedback().message}`}
             </Text>
           )}
         </Card>
