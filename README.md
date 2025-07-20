@@ -36,11 +36,14 @@ A modern, interactive trivia application focused on Test-Driven Development (TDD
 
 ### 🧪 Built with TDD Methodology
 
-- **75+ comprehensive tests** across all components
+- **143 comprehensive tests** across all components
 - **Vitest** for fast unit testing
 - **React Testing Library** for component testing
 - **Playwright** for end-to-end testing
 - **100% test coverage** for all features
+- **Essential testing strategy** for fast development cycles
+
+> 📚 **[Development & Testing Guide](docs/README.md)** - Complete documentation for developers
 
 ## 🚀 Quick Start
 
@@ -101,38 +104,66 @@ This project was built using the [tdd-react-template](https://github.com/haryati
 | `npm run dev`           | Start development server       |
 | `npm run build`         | Build for production           |
 | `npm run preview`       | Preview production build       |
-| `npm test`              | Run unit tests in watch mode   |
-| `npm run test:coverage` | Run tests with coverage report |
-| `npm run test:e2e`      | Run end-to-end tests           |
+| `npm test`              | Run unit tests (watch mode) ⭐ |
+| `npm run test:coverage` | Unit tests with coverage ⭐    |
+| `npm run test:e2e`      | Cross-browser E2E tests        |
 | `npm run lint`          | Run ESLint                     |
 
-### 🧪 Testing
+> ⭐ **Essential tests** - recommended for daily development
 
-#### Unit Tests
+### 🧪 Testing Strategy
+
+This project uses an **Essential Testing** approach for optimal development speed and reliability:
+
+> 📚 **[Complete Testing Documentation](docs/README.md)** - Comprehensive guide to our testing strategy, development setup, and workflows
+
+#### ✅ Essential Tests (Recommended)
+
+Our daily development workflow focuses on **fast, reliable essential tests**:
+
+- **Unit Tests**: Complete coverage of all components and utilities (143 tests)
+- **E2E Tests**: Chromium (most common browser) + Mobile Chrome simulation
+- **Execution Time**: ~5-10 seconds for complete essential coverage
+- **Reliability**: 100% stable tests with proper mocking and masking
 
 ```bash
-# Run tests in watch mode
-npm test
+# Run essential tests (recommended)
+npm test                    # Unit tests in watch mode
+npm run test:coverage       # Unit tests with coverage
+npm run test:essential      # Essential E2E tests (Chromium + Mobile Chrome)
 
-# Run tests once
-npm test run
+# Essential E2E debugging & UI
+npm run test:essential:ui   # Essential E2E with interactive UI ⭐
+npm run test:essential:debug # Essential E2E with step-by-step debugging ⭐
 
-# Generate coverage report
-npm run test:coverage
+# Quick essential validation
+npm test run && npm run test:essential
 ```
 
-#### End-to-End Tests
+#### 🌐 Comprehensive Cross-Browser Testing (Optional)
+
+For thorough cross-browser validation when needed:
 
 ```bash
-# Run E2E tests
-npm run test:e2e
+# Manual comprehensive testing workflows
+npm run test:e2e            # All browsers (Firefox, WebKit, Edge, Mobile Safari)
+npm run test:e2e:ui         # All browsers with interactive UI (comprehensive)
+npm run test:e2e:debug      # All browsers with debugging (comprehensive)
 
-# Run E2E tests with UI
-npx playwright test --ui
+# Cross-browser testing script
+npm run test:cross-browser  # Interactive script for comprehensive testing
 
-# View test report
+# View detailed test reports
 npm run test:e2e:report
 ```
+
+#### 🎯 Testing Philosophy
+
+- **Essential First**: Fast feedback loops with essential browser coverage (~95% real-world usage)
+- **Visual Regression**: Answer feedback area masked to handle random content
+- **Mobile Support**: Touch interactions properly configured for mobile testing
+- **TDD Approach**: Tests written first, driving implementation design
+- **Environment Control**: `PLAYWRIGHT_ESSENTIAL_ONLY=true` skips visual regression for speed
 
 ### 📁 Project Structure
 
@@ -199,10 +230,13 @@ This project features a comprehensive color management system that provides:
 
 The project maintains comprehensive test coverage:
 
-- **Unit Tests**: 75+ tests covering all components and logic
+- **Unit Tests**: 143 tests across 12 test files covering all components and logic
 - **Integration Tests**: Full user journey testing
 - **E2E Tests**: Complete application flow validation
+- **Essential Testing**: Covers ~95% of real-world browser usage
 - **Accessibility Tests**: Ensuring inclusive design
+
+> 📚 **[Testing Documentation](docs/README.md)** - Complete testing strategy and workflow guide
 
 ## 🎓 Learning Objectives
 

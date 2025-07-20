@@ -4,21 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       test_scope:
-        description: 'Test scope'
+        description: "Test scope"
         required: false
-        default: 'essential'
+        default: "essential"
         type: choice
         options:
           - essential
           - extended
-      future_schedule:
-        description: 'Enable monthly schedule after testing?'
-        required: false
-        default: 'false'
-        type: choice
-        options:
-          - 'false'
-          - 'true'
 
 env:
   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
@@ -31,8 +23,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: [chromium, firefox]  # Only essential browsers
-    
+        browser: [chromium, firefox] # Only essential browsers
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -41,7 +33,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -64,13 +56,13 @@ jobs:
       - name: Run E2E tests
         run: npx playwright test --project=${{ matrix.browser }} --reporter=github
         env:
-          PLAYWRIGHT_REPORT_SLOW_TESTS: 'null'
+          PLAYWRIGHT_REPORT_SLOW_TESTS: "null"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: monthly-lite-results-${{ matrix.browser }}
+          name: lite-test-results-${{ matrix.browser }}
           path: |
             test-results/
             playwright-report/
@@ -88,7 +80,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -103,7 +95,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: monthly-mobile-results
+          name: lite-mobile-results
           path: test-results/
           retention-days: 7
 
@@ -132,9 +124,7 @@ jobs:
           echo "- **OS**: Ubuntu (cost-optimized)" >> $GITHUB_STEP_SUMMARY
           echo "- **Duration**: ~40-50 minutes total" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Ready for monthly schedule**: If tests pass consistently" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "*To enable monthly automation, update the workflow with cron schedule*" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Manual testing workflow complete**" >> $GITHUB_STEP_SUMMARY
 
       - name: Create issue on failure
         if: failure()
@@ -161,8 +151,8 @@ jobs:
                 
                 ### Next Steps
                 1. Review test failures in the workflow run
-                2. Fix any issues before enabling monthly schedule
-                3. Consider running Manual Cross-Browser Tests for deeper investigation
+                2. Fix any issues and re-run when needed
+                3. Consider running Comprehensive Cross-Browser Tests for deeper investigation
                 
                 [View Workflow Run](${context.payload.repository.html_url}/actions/runs/${context.runId})
               `,
