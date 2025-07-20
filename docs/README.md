@@ -42,6 +42,7 @@ npm test run && npm run test:essential
 
 - **[Snapshot Management](./SNAPSHOT_MANAGEMENT.md)** - Visual regression testing and artifact handling
 - **[Color System](./COLOR_SYSTEM.md)** - Design system documentation
+- **[Architecture & Maintenance](./REFACTORING_SUMMARY.md)** - Code architecture guide and maintenance guidelines
 
 ## 🚀 Key Features
 
