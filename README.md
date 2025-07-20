@@ -4,7 +4,7 @@ A modern, interactive trivia application focused on Test-Driven Development (TDD
 
 ## 🌐 Live Demo
 
-**🎯 [Try the Live App](https://haryati75.github.io/tdd-trivia-app/)** - Test your TDD knowledge now!
+**🎯 [Try the Live App](https://trivia.charityx.io)** - Test your TDD knowledge now!
 
 > 🚀 **Built from Template**: This project was created using the [tdd-react-template](https://github.com/haryati75/tdd-react-template) - a comprehensive React + TypeScript + TDD starter template.
 
