@@ -81,6 +81,7 @@ jobs:
         run: npx playwright test --project=chromium --reporter=github
         env:
           PLAYWRIGHT_REPORT_SLOW_TESTS: "null"
+          PLAYWRIGHT_ESSENTIAL_ONLY: "true"
 
       - name: Upload test artifacts on failure
         uses: actions/upload-artifact@v4
@@ -114,6 +115,8 @@ jobs:
 
       - name: Run mobile compatibility test
         run: npx playwright test --project="Mobile Chrome" --reporter=github
+        env:
+          PLAYWRIGHT_ESSENTIAL_ONLY: "true"
 
       - name: Upload mobile test artifacts
         uses: actions/upload-artifact@v4

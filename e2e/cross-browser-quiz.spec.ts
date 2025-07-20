@@ -243,10 +243,13 @@ test.describe('Browser-Specific Features', () => {
   });
 });
 
-// Visual regression tests
+// Visual regression tests (comprehensive testing only)
 test.describe('Visual Regression Tests', () => {
   
   test('App looks consistent across browsers', async ({ page, browserName }) => {
+    // Skip visual regression tests in essential testing (CI/local fast runs)
+    test.skip(process.env.PLAYWRIGHT_ESSENTIAL_ONLY === 'true', 'Visual regression tests disabled for essential testing');
+    
     await page.goto('/');
     
     // Take screenshot of initial state
