@@ -34,3 +34,28 @@ coverage
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/playwright-report/
+/test-results/
+
+# E2E Test Artifacts (prevent accidental commits)
+# Snapshots created on test failures
+**/test-results/
+**/playwright-report/
+**/*.png
+**/*.webm
+**/*.zip
+**/trace.zip
+**/video.webm
+**/screenshot*.png
+
+# Playwright snapshots - only commit intentional baseline images
+# Exclude auto-generated screenshots from failed tests
+e2e/**/*-actual.png
+e2e/**/*-diff.png
+test-results/**/*.png
+test-results/**/*.webm
+
+# Allow intentional baseline snapshots (uncomment if you want to commit baselines)
+# !e2e/**/*-linux.png
+# !e2e/**/*-darwin.png
+# !e2e/**/*-win32.png
