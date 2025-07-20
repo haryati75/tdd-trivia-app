@@ -161,6 +161,3 @@ jobs:
           echo "- **Mobile**: Chrome mobile simulation" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "💡 **For full cross-browser testing**, use \`lite-cross-browser-tests\` or \`comprehensive-cross-browser-tests\`" >> $GITHUB_STEP_SUMMARY
-
-      - name: Cleanup test artifacts
-        run: npm run test:cleanup
