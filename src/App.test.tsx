@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import App from './App'
 
 // Helper function to start quiz and get to a specific question
@@ -730,6 +731,83 @@ describe('App Component', () => {
         
         expect(screen.getByTestId('question-card')).toBeInTheDocument()
         expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
+      })
+    })
+
+    describe('Restart Functionality', () => {
+      beforeEach(() => {
+        global.confirm = vi.fn()
+      })
+
+      it('shows restart button when quiz is in progress', async () => {
+        render(<App />)
+        await startQuizAndNavigateToQuestion(user, 0)
+        
+        expect(screen.getByRole('button', { name: /restart/i })).toBeInTheDocument()
+      })
+
+      it('resets quiz to initial state when restart is confirmed', async () => {
+        (global.confirm as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true)
+        
+        render(<App />)
+        await startQuizAndNavigateToQuestion(user, 1)
+        
+        // Verify we're in progress
+        expect(screen.getByTestId('question-card')).toBeInTheDocument()
+        expect(screen.getByText(/Progress: \d+%/)).toBeInTheDocument()
+        
+        // Click restart
+        const restartButton = screen.getByRole('button', { name: /restart/i })
+        await user.click(restartButton)
+        
+        // Should confirm with user
+        expect(global.confirm).toHaveBeenCalledWith(
+          'Are you sure you want to restart the quiz? Your current progress will be lost.'
+        )
+        
+        // Should be back to initial state
+        expect(screen.getByRole('button', { name: /start quiz/i })).toBeInTheDocument()
+        expect(screen.queryByTestId('question-card')).not.toBeInTheDocument()
+        expect(screen.queryByText(/Progress:/)).not.toBeInTheDocument()
+      })
+
+      it('continues quiz when restart is cancelled', async () => {
+        (global.confirm as unknown as ReturnType<typeof vi.fn>).mockReturnValue(false)
+        
+        render(<App />)
+        await startQuizAndNavigateToQuestion(user, 1)
+        
+        // Verify we're in progress
+        expect(screen.getByTestId('question-card')).toBeInTheDocument()
+        
+        // Click restart but cancel
+        const restartButton = screen.getByRole('button', { name: /restart/i })
+        await user.click(restartButton)
+        
+        // Should confirm with user
+        expect(global.confirm).toHaveBeenCalledWith(
+          'Are you sure you want to restart the quiz? Your current progress will be lost.'
+        )
+        
+        // Should still be in quiz
+        expect(screen.getByTestId('question-card')).toBeInTheDocument()
+        expect(screen.getByText(/Progress:/)).toBeInTheDocument()
+        expect(screen.queryByRole('button', { name: /start quiz/i })).not.toBeInTheDocument()
+      })
+
+      it('does not show restart button before quiz starts', () => {
+        render(<App />)
+        
+        expect(screen.queryByRole('button', { name: /restart/i })).not.toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /start quiz/i })).toBeInTheDocument()
+      })
+
+      it('does not show restart button after quiz completion', async () => {
+        render(<App />)
+        await completeEntireQuiz(user)
+        
+        expect(screen.queryByRole('button', { name: /restart/i })).not.toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /back to start/i })).toBeInTheDocument()
       })
     })
   })

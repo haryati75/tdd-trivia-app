@@ -13,6 +13,7 @@ function App() {
     isQuizStarted,
     startQuiz,
     endQuiz,
+    restartQuiz,
     selectAnswer,
     confirmAnswer,
     nextQuestion
@@ -55,6 +56,7 @@ function App() {
           onStartQuiz={startQuiz}
           onEndQuiz={endQuiz}
           onNextQuestion={nextQuestion}
+          onRestartQuiz={restartQuiz}
         />
       </div>
       {(!isQuizStarted || isQuizComplete) && <Footer />}

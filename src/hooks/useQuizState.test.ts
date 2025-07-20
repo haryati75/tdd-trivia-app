@@ -187,4 +187,46 @@ describe('useQuizState', () => {
       expect(result.current.state.score).toBe(4); // 1 + 3 = 4
     });
   });
+
+  describe('restart functionality', () => {
+    it('provides restartQuiz function', () => {
+      const { result } = renderHook(() => useQuizState(mockQuestions));
+      
+      expect(typeof result.current.restartQuiz).toBe('function');
+    });
+
+    it('resets quiz to initial state when restartQuiz is called', () => {
+      const { result } = renderHook(() => useQuizState(mockQuestions));
+      
+      // Start quiz and progress through it
+      act(() => {
+        result.current.startQuiz();
+      });
+      
+      act(() => {
+        result.current.selectAnswer('Option B', 1);
+        result.current.confirmAnswer();
+      });
+      
+      expect(result.current.state.score).toBeGreaterThan(0);
+      expect(result.current.isQuizStarted).toBe(true);
+      
+      // Restart quiz
+      act(() => {
+        result.current.restartQuiz();
+      });
+      
+      // Should be back to initial state
+      expect(result.current.isQuizStarted).toBe(false);
+      expect(result.current.isQuizComplete).toBe(false);
+      expect(result.current.currentQuestion).toBe(null);
+      expect(result.current.state.score).toBe(0);
+      expect(result.current.state.currentQuestionIndex).toBe(-1);
+      expect(result.current.state.selectedAnswer).toBe('');
+      expect(result.current.state.selectedAnswerIndex).toBe(-1);
+      expect(result.current.state.isAnswerConfirmed).toBe(false);
+      expect(result.current.state.startTime).toBe(null);
+      expect(result.current.state.endTime).toBe(null);
+    });
+  });
 });

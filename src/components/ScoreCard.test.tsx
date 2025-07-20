@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ScoreCard from './ScoreCard';
 import type { Question } from '../types/quiz';
@@ -35,9 +35,12 @@ describe('ScoreCard', () => {
   const mockOnStartQuiz = vi.fn();
   const mockOnEndQuiz = vi.fn();
   const mockOnNextQuestion = vi.fn();
+  const mockOnRestartQuiz = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock window.confirm
+    global.confirm = vi.fn();
   });
 
   describe('before quiz starts', () => {
@@ -53,6 +56,7 @@ describe('ScoreCard', () => {
           onStartQuiz={mockOnStartQuiz}
           onEndQuiz={mockOnEndQuiz}
           onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
         />
       );
 
@@ -72,6 +76,7 @@ describe('ScoreCard', () => {
           onStartQuiz={mockOnStartQuiz}
           onEndQuiz={mockOnEndQuiz}
           onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
         />
       );
 
@@ -95,6 +100,7 @@ describe('ScoreCard', () => {
           onStartQuiz={mockOnStartQuiz}
           onEndQuiz={mockOnEndQuiz}
           onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
         />
       );
 
@@ -113,6 +119,7 @@ describe('ScoreCard', () => {
           onStartQuiz={mockOnStartQuiz}
           onEndQuiz={mockOnEndQuiz}
           onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
         />
       );
 
@@ -131,6 +138,7 @@ describe('ScoreCard', () => {
           onStartQuiz={mockOnStartQuiz}
           onEndQuiz={mockOnEndQuiz}
           onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
         />
       );
 
@@ -150,6 +158,7 @@ describe('ScoreCard', () => {
           onStartQuiz={mockOnStartQuiz}
           onEndQuiz={mockOnEndQuiz}
           onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
         />
       );
 
@@ -168,6 +177,7 @@ describe('ScoreCard', () => {
           onStartQuiz={mockOnStartQuiz}
           onEndQuiz={mockOnEndQuiz}
           onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
         />
       );
 
@@ -188,6 +198,7 @@ describe('ScoreCard', () => {
           onStartQuiz={mockOnStartQuiz}
           onEndQuiz={mockOnEndQuiz}
           onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
         />
       );
 
@@ -208,6 +219,7 @@ describe('ScoreCard', () => {
           onStartQuiz={mockOnStartQuiz}
           onEndQuiz={mockOnEndQuiz}
           onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
         />
       );
 
@@ -230,6 +242,8 @@ describe('ScoreCard', () => {
         onStartQuiz={mockOnStartQuiz}
         onEndQuiz={mockOnEndQuiz}
         onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
+        onRestartQuiz={mockOnRestartQuiz}
       />
     );
 
@@ -237,5 +251,170 @@ describe('ScoreCard', () => {
     fireEvent.click(nextButton);
 
     expect(mockOnNextQuestion).toHaveBeenCalledTimes(1);
+  });
+
+  describe('restart functionality', () => {
+    it('shows restart button when quiz is in progress', () => {
+      render(
+        <ScoreCard
+          questions={mockQuestions}
+          score={5}
+          currentQuestionIndex={0}
+          isAnswerConfirmed={true}
+          startTime={new Date()}
+          endTime={null}
+          onStartQuiz={mockOnStartQuiz}
+          onEndQuiz={mockOnEndQuiz}
+          onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
+          onRestartQuiz={mockOnRestartQuiz}
+        />
+      );
+
+      expect(screen.getByTestId('restart-quiz-button')).toBeInTheDocument();
+    });
+
+    it('calls onRestartQuiz when restart button clicked and user confirms', () => {
+      (global.confirm as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
+
+      render(
+        <ScoreCard
+          questions={mockQuestions}
+          score={5}
+          currentQuestionIndex={0}
+          isAnswerConfirmed={true}
+          startTime={new Date()}
+          endTime={null}
+          onStartQuiz={mockOnStartQuiz}
+          onEndQuiz={mockOnEndQuiz}
+          onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
+          onRestartQuiz={mockOnRestartQuiz}
+        />
+      );
+
+      const restartButton = screen.getByTestId('restart-quiz-button');
+      fireEvent.click(restartButton);
+
+      expect(global.confirm).toHaveBeenCalledWith(
+        'Are you sure you want to restart the quiz? Your current progress will be lost.'
+      );
+      expect(mockOnRestartQuiz).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not call onRestartQuiz when restart button clicked and user cancels', () => {
+      (global.confirm as unknown as ReturnType<typeof vi.fn>).mockReturnValue(false);
+
+      render(
+        <ScoreCard
+          questions={mockQuestions}
+          score={5}
+          currentQuestionIndex={0}
+          isAnswerConfirmed={true}
+          startTime={new Date()}
+          endTime={null}
+          onStartQuiz={mockOnStartQuiz}
+          onEndQuiz={mockOnEndQuiz}
+          onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
+          onRestartQuiz={mockOnRestartQuiz}
+        />
+      );
+
+      const restartButton = screen.getByTestId('restart-quiz-button');
+      fireEvent.click(restartButton);
+
+      expect(global.confirm).toHaveBeenCalledWith(
+        'Are you sure you want to restart the quiz? Your current progress will be lost.'
+      );
+      expect(mockOnRestartQuiz).not.toHaveBeenCalled();
+    });
+
+    it('does not show restart button when quiz has not started', () => {
+      render(
+        <ScoreCard
+          questions={mockQuestions}
+          score={0}
+          currentQuestionIndex={-1}
+          isAnswerConfirmed={false}
+          startTime={null}
+          endTime={null}
+          onStartQuiz={mockOnStartQuiz}
+          onEndQuiz={mockOnEndQuiz}
+          onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
+        />
+      );
+
+      expect(screen.queryByTestId('restart-quiz-button')).not.toBeInTheDocument();
+    });
+
+    it('does not show restart button when quiz is completed', () => {
+      render(
+        <ScoreCard
+          questions={mockQuestions}
+          score={5}
+          currentQuestionIndex={2}
+          isAnswerConfirmed={true}
+          startTime={new Date()}
+          endTime={new Date()}
+          onStartQuiz={mockOnStartQuiz}
+          onEndQuiz={mockOnEndQuiz}
+          onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
+        />
+      );
+
+      expect(screen.queryByTestId('restart-quiz-button')).not.toBeInTheDocument();
+    });
+
+    it('disables restart button on the last question when End of Quiz button is shown', () => {
+      render(
+        <ScoreCard
+          questions={mockQuestions}
+          score={5}
+          currentQuestionIndex={1} // Last question (index 1 for 2 questions)
+          isAnswerConfirmed={true}
+          startTime={new Date()}
+          endTime={null}
+          onStartQuiz={mockOnStartQuiz}
+          onEndQuiz={mockOnEndQuiz}
+          onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
+        />
+      );
+
+      const restartButton = screen.getByTestId('restart-quiz-button');
+      expect(restartButton).toBeInTheDocument();
+      expect(restartButton).toBeDisabled();
+      
+      // Verify End of Quiz button is shown
+      expect(screen.getByText('End of Quiz')).toBeInTheDocument();
+    });
+
+    it('enables restart button on non-last questions', () => {
+      render(
+        <ScoreCard
+          questions={mockQuestions}
+          score={5}
+          currentQuestionIndex={0} // First question (not last)
+          isAnswerConfirmed={true}
+          startTime={new Date()}
+          endTime={null}
+          onStartQuiz={mockOnStartQuiz}
+          onEndQuiz={mockOnEndQuiz}
+          onNextQuestion={mockOnNextQuestion}
+          onRestartQuiz={mockOnRestartQuiz}
+        />
+      );
+
+      const restartButton = screen.getByTestId('restart-quiz-button');
+      expect(restartButton).toBeInTheDocument();
+      expect(restartButton).toBeEnabled();
+      
+      // Verify Next Question button is shown (not End of Quiz)
+      expect(screen.getByText('Next Question')).toBeInTheDocument();
+      expect(screen.queryByText('End of Quiz')).not.toBeInTheDocument();
+    });
   });
 });

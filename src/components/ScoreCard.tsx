@@ -20,6 +20,7 @@ interface ScoreCardProps {
   onStartQuiz: () => void;
   onEndQuiz: () => void;
   onNextQuestion: () => void;
+  onRestartQuiz: () => void;
 }
 
 export default function ScoreCard({
@@ -31,11 +32,22 @@ export default function ScoreCard({
   endTime,
   onStartQuiz,
   onEndQuiz,
-  onNextQuestion
+  onNextQuestion,
+  onRestartQuiz
 }: ScoreCardProps) {
   const totalPossibleScore = calculateTotalPossibleScore(questions);
   const isQuizStarted = currentQuestionIndex >= 0;
   const isQuizComplete = currentQuestionIndex >= questions.length;
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
+  const handleRestartQuiz = () => {
+    const confirmRestart = window.confirm(
+      'Are you sure you want to restart the quiz? Your current progress will be lost.'
+    );
+    if (confirmRestart) {
+      onRestartQuiz();
+    }
+  };
 
   const renderContent = () => {
     // Before quiz starts
@@ -75,13 +87,22 @@ export default function ScoreCard({
           {getPerformanceEmoji(score, totalPossibleScore)} Score: {score}/{totalPossibleScore} points
           {` • Progress: ${calculateProgress(currentQuestionIndex, questions.length)}%`}
         </Text>
-        <Button 
-          data-testid="next-question-button"
-          onClick={onNextQuestion}
-          disabled={!isAnswerConfirmed}
-        >
-          {currentQuestionIndex === questions.length - 1 ? 'End of Quiz' : 'Next Question'}
-        </Button>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          <Button 
+            data-testid="next-question-button"
+            onClick={onNextQuestion}
+            disabled={!isAnswerConfirmed}
+          >
+            {currentQuestionIndex === questions.length - 1 ? 'End of Quiz' : 'Next Question'}
+          </Button>
+          <Button 
+            data-testid="restart-quiz-button"
+            onClick={handleRestartQuiz}
+            disabled={isLastQuestion}
+          >
+            Restart
+          </Button>
+        </div>
       </>
     );
   };

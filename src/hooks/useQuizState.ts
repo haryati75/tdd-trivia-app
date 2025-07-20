@@ -31,6 +31,10 @@ export const useQuizState = (questions: Question[]) => {
     setState(initialQuizState);
   }, []);
 
+  const restartQuiz = useCallback(() => {
+    setState(initialQuizState);
+  }, []);
+
   const selectAnswer = useCallback((answer: string, index: number) => {
     setState(prev => ({
       ...prev,
@@ -73,6 +77,7 @@ export const useQuizState = (questions: Question[]) => {
     isQuizStarted,
     startQuiz,
     endQuiz,
+    restartQuiz,
     selectAnswer,
     confirmAnswer,
     nextQuestion
