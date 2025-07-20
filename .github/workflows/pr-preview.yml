@@ -1,0 +1,104 @@
+name: PR Preview & Quick Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - "**.md"
+      - ".vscode/**"
+      - ".gitignore"
+      - "docs/**"
+
+concurrency:
+  group: pr-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  quick-validation:
+    name: Quick Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint check
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build check
+        run: npm run build
+
+  smoke-tests:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: quick-validation
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests (fast)
+        run: npm test -- --run --reporter=verbose
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run critical E2E tests
+        run: npx playwright test --project=chromium --grep="Complete quiz flow"
+
+      - name: Upload smoke test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: smoke-test-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 3
+
+  pr-summary:
+    name: PR Test Summary
+    runs-on: ubuntu-latest
+    needs: [quick-validation, smoke-tests]
+    if: always()
+    steps:
+      - name: Generate PR summary
+        run: |
+          echo "## 🔍 PR Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Validation | ${{ needs.quick-validation.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Smoke Tests | ${{ needs.smoke-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.quick-validation.result }}" = "success" ] && [ "${{ needs.smoke-tests.result }}" = "success" ]; then
+            echo "✅ **Ready for review!** All checks passed." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+            echo "- Full cross-browser tests will run after merge to main" >> $GITHUB_STEP_SUMMARY
+            echo "- Comprehensive tests available for full validation" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Issues found.** Please fix before merging." >> $GITHUB_STEP_SUMMARY
+          fi

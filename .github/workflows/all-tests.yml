@@ -1,4 +1,5 @@
-name: Unit and e2e Tests
+name: Essential Tests (Fast)
+
 on:
   push:
     branches: [main]
@@ -6,27 +7,62 @@ on:
       - "**.md"
       - ".vscode/**"
       - ".gitignore"
+      - "docs/**"
   pull_request:
     branches: [main]
     paths-ignore:
       - "**.md"
       - ".vscode/**"
       - ".gitignore"
+      - "docs/**"
+
+env:
+  # Reduce Playwright output for cleaner logs
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
 jobs:
-  test:
-    timeout-minutes: 60
+  unit-tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Unit tests
+      - name: Run unit tests with coverage
         run: npm run test:coverage -- --run
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false
+
+  essential-e2e:
+    name: Essential E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Get Playwright version
         id: playwright-version
@@ -34,29 +70,94 @@ jobs:
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4
-        id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}-chromium-firefox
-          restore-keys: |
-            ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
-            ${{ runner.os }}-playwright-
+          key: playwright-essential-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium firefox
+      - name: Install essential browsers
+        run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright tests (Chromium & Firefox)
-        run: npx playwright test --project=chromium --project=firefox
+      - name: Run essential E2E tests
+        run: npx playwright test --project=chromium --reporter=github
+        env:
+          PLAYWRIGHT_REPORT_SLOW_TESTS: "null"
 
-      - name: Try WebKit tests (optional)
-        continue-on-error: true
-        run: |
-          # Install WebKit and try to run tests
-          npx playwright install --with-deps webkit
-          npx playwright test --project=webkit
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
+      - name: Upload test artifacts on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
         with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+          name: essential-e2e-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+  mobile-check:
+    name: Mobile Compatibility Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install mobile browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run mobile compatibility test
+        run: npx playwright test --project="Mobile Chrome" --reporter=github
+
+      - name: Upload mobile test artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: mobile-check-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, essential-e2e, mobile-check]
+    if: always()
+    steps:
+      - name: Generate test summary
+        run: |
+          echo "## 🧪 Essential Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Type | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Essential E2E (Chromium) | ${{ needs.essential-e2e.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Mobile Check | ${{ needs.mobile-check.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.unit-tests.result }}" = "success" ] && [ "${{ needs.essential-e2e.result }}" = "success" ] && [ "${{ needs.mobile-check.result }}" = "success" ]; then
+            echo "✅ **All essential tests passed!**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🚀 **Ready for merge** - Core functionality validated" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Some tests failed** - Check individual job results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🔍 **Next steps:** Fix failing tests or run comprehensive testing" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Testing Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "- **Unit tests**: Full coverage" >> $GITHUB_STEP_SUMMARY  
+          echo "- **E2E**: Chromium (most common browser)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mobile**: Chrome mobile simulation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "💡 **For full cross-browser testing**, use \`lite-cross-browser-tests\` or \`comprehensive-cross-browser-tests\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Cleanup test artifacts
+        run: npm run test:cleanup

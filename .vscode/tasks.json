@@ -82,7 +82,21 @@
 
     // E2E Testing Tasks
     {
-      "label": "🎭 Test: E2E (Playwright)",
+      "label": "� Test: Essential E2E (Default)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:essential"],
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "🎭 Test: E2E (All Browsers)",
       "type": "shell",
       "command": "npm",
       "args": ["run", "test:e2e"],
@@ -96,10 +110,25 @@
       }
     },
     {
-      "label": "🎭 Test: E2E with UI",
+      "label": "� Test: Essential E2E with UI",
       "type": "shell",
-      "command": "npx",
-      "args": ["playwright", "test", "--ui"],
+      "command": "npm",
+      "args": ["run", "test:essential:ui"],
+      "group": "test",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "🎭 Test: E2E with UI (All Browsers)",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:e2e:ui"],
       "group": "test",
       "isBackground": true,
       "problemMatcher": [],
@@ -170,22 +199,28 @@
       }
     },
 
-    // Comprehensive Testing Tasks
+    // Testing Tasks - Essential Focus
     {
-      "label": "🧪 Test: All (Unit + E2E)",
+      "label": "🎯 Test: Essential (Unit + E2E)",
       "dependsOrder": "sequence",
-      "dependsOn": ["🧪 Test: Unit (Run Once)", "🎭 Test: E2E (Playwright)"],
+      "dependsOn": ["🧪 Test: Unit (Run Once)", "� Test: Essential E2E (Default)"],
       "group": {
         "kind": "test",
         "isDefault": true
       }
     },
     {
-      "label": "📊 Test: All with Reports",
+      "label": "🌐 Test: Comprehensive (All Browsers)",
+      "dependsOrder": "sequence",
+      "dependsOn": ["🧪 Test: Unit (Run Once)", "🎭 Test: E2E (All Browsers)"],
+      "group": "test"
+    },
+    {
+      "label": "📊 Test: Essential with Reports",
       "dependsOrder": "sequence",
       "dependsOn": [
         "📊 Test: Unit with Coverage",
-        "🎭 Test: E2E (Playwright)",
+        "� Test: Essential E2E (Default)",
         "📊 View: Coverage Report (Quick)",
         "🎭 View: Playwright Report"
       ],

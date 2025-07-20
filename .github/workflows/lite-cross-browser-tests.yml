@@ -1,0 +1,170 @@
+name: Lite Cross-Browser Tests (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_scope:
+        description: 'Test scope'
+        required: false
+        default: 'essential'
+        type: choice
+        options:
+          - essential
+          - extended
+      future_schedule:
+        description: 'Enable monthly schedule after testing?'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+env:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
+jobs:
+  essential-e2e:
+    name: Essential E2E (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox]  # Only essential browsers
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(npm list @playwright/test --depth=0 --json | jq -r '.dependencies["@playwright/test"].version')" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-ubuntu-${{ matrix.browser }}-${{ steps.playwright-version.outputs.version }}
+          restore-keys: |
+            playwright-ubuntu-${{ matrix.browser }}-
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run E2E tests
+        run: npx playwright test --project=${{ matrix.browser }} --reporter=github
+        env:
+          PLAYWRIGHT_REPORT_SLOW_TESTS: 'null'
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: monthly-lite-results-${{ matrix.browser }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+  mobile-check:
+    name: Mobile Compatibility Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run mobile tests
+        run: npx playwright test --project="Mobile Chrome" --reporter=github
+
+      - name: Upload mobile test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: monthly-mobile-results
+          path: test-results/
+          retention-days: 7
+
+  lite-summary:
+    name: Lite Test Summary
+    runs-on: ubuntu-latest
+    needs: [essential-e2e, mobile-check]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 🧪 Lite Cross-Browser Test Report" >> $GITHUB_STEP_SUMMARY
+          echo "**Date**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by**: Manual testing" >> $GITHUB_STEP_SUMMARY
+          echo "**Scope**: Essential browsers + Mobile check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Essential E2E | ${{ needs.essential-e2e.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Mobile Check | ${{ needs.mobile-check.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Browsers**: Chromium, Firefox" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mobile**: Chrome mobile simulation" >> $GITHUB_STEP_SUMMARY
+          echo "- **OS**: Ubuntu (cost-optimized)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Duration**: ~40-50 minutes total" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Ready for monthly schedule**: If tests pass consistently" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "*To enable monthly automation, update the workflow with cron schedule*" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '⚠️ Lite Cross-Browser Tests Failed',
+              body: `
+                ## Lite Test Failure Report (Manual Run)
+                
+                **Date**: ${new Date().toISOString()}
+                **Workflow**: Lite Cross-Browser Tests (Manual)
+                **Run ID**: ${context.runId}
+                
+                ### Failed Jobs
+                - Essential E2E: ${{ needs.essential-e2e.result }}
+                - Mobile Check: ${{ needs.mobile-check.result }}
+                
+                ### Testing Phase Notes
+                This was a manual test run to validate the lite workflow.
+                
+                ### Next Steps
+                1. Review test failures in the workflow run
+                2. Fix any issues before enabling monthly schedule
+                3. Consider running Manual Cross-Browser Tests for deeper investigation
+                
+                [View Workflow Run](${context.payload.repository.html_url}/actions/runs/${context.runId})
+              `,
+              labels: ['bug', 'testing', 'lite-workflow', 'manual-test']
+            })
