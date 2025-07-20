@@ -9,6 +9,8 @@ import type { Question } from '../types/quiz';
 import Card from './Card';
 import Text from './Text';
 import Button from './Button';
+import ConfirmModal from './ConfirmModal';
+import { useState } from 'react';
 
 interface ScoreCardProps {
   questions: Question[];
@@ -39,14 +41,19 @@ export default function ScoreCard({
   const isQuizStarted = currentQuestionIndex >= 0;
   const isQuizComplete = currentQuestionIndex >= questions.length;
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const [showRestartModal, setShowRestartModal] = useState(false);
 
   const handleRestartQuiz = () => {
-    const confirmRestart = window.confirm(
-      'Are you sure you want to restart the quiz? Your current progress will be lost.'
-    );
-    if (confirmRestart) {
-      onRestartQuiz();
-    }
+    setShowRestartModal(true);
+  };
+
+  const handleConfirmRestart = () => {
+    setShowRestartModal(false);
+    onRestartQuiz();
+  };
+
+  const handleCancelRestart = () => {
+    setShowRestartModal(false);
   };
 
   const renderContent = () => {
@@ -107,5 +114,16 @@ export default function ScoreCard({
     );
   };
 
-  return <Card data-testid="score-card">{renderContent()}</Card>;
+  return (
+    <>
+      <Card data-testid="score-card">{renderContent()}</Card>
+      <ConfirmModal
+        isOpen={showRestartModal}
+        title="Restart Quiz"
+        message="Are you sure you want to restart the quiz? Your current progress will be lost."
+        onConfirm={handleConfirmRestart}
+        onCancel={handleCancelRestart}
+      />
+    </>
+  );
 }

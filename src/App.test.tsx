@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { vi } from 'vitest'
 import App from './App'
 
 // Helper function to start quiz and get to a specific question
@@ -735,10 +734,6 @@ describe('App Component', () => {
     })
 
     describe('Restart Functionality', () => {
-      beforeEach(() => {
-        global.confirm = vi.fn()
-      })
-
       it('shows restart button when quiz is in progress', async () => {
         render(<App />)
         await startQuizAndNavigateToQuestion(user, 0)
@@ -747,8 +742,6 @@ describe('App Component', () => {
       })
 
       it('resets quiz to initial state when restart is confirmed', async () => {
-        (global.confirm as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true)
-        
         render(<App />)
         await startQuizAndNavigateToQuestion(user, 1)
         
@@ -760,10 +753,13 @@ describe('App Component', () => {
         const restartButton = screen.getByRole('button', { name: /restart/i })
         await user.click(restartButton)
         
-        // Should confirm with user
-        expect(global.confirm).toHaveBeenCalledWith(
-          'Are you sure you want to restart the quiz? Your current progress will be lost.'
-        )
+        // Should show confirmation modal
+        expect(screen.getByText('Restart Quiz')).toBeInTheDocument()
+        expect(screen.getByText('Are you sure you want to restart the quiz? Your current progress will be lost.')).toBeInTheDocument()
+        
+        // Click confirm (OK button)
+        const confirmButton = screen.getByTestId('confirm-modal-ok')
+        await user.click(confirmButton)
         
         // Should be back to initial state
         expect(screen.getByRole('button', { name: /start quiz/i })).toBeInTheDocument()
@@ -772,27 +768,29 @@ describe('App Component', () => {
       })
 
       it('continues quiz when restart is cancelled', async () => {
-        (global.confirm as unknown as ReturnType<typeof vi.fn>).mockReturnValue(false)
-        
         render(<App />)
         await startQuizAndNavigateToQuestion(user, 1)
         
         // Verify we're in progress
         expect(screen.getByTestId('question-card')).toBeInTheDocument()
         
-        // Click restart but cancel
+        // Click restart
         const restartButton = screen.getByRole('button', { name: /restart/i })
         await user.click(restartButton)
         
-        // Should confirm with user
-        expect(global.confirm).toHaveBeenCalledWith(
-          'Are you sure you want to restart the quiz? Your current progress will be lost.'
-        )
+        // Should show confirmation modal
+        expect(screen.getByText('Restart Quiz')).toBeInTheDocument()
+        
+        // Click cancel
+        const cancelButton = screen.getByTestId('confirm-modal-cancel')
+        await user.click(cancelButton)
         
         // Should still be in quiz
         expect(screen.getByTestId('question-card')).toBeInTheDocument()
         expect(screen.getByText(/Progress:/)).toBeInTheDocument()
         expect(screen.queryByRole('button', { name: /start quiz/i })).not.toBeInTheDocument()
+        // Modal should be closed
+        expect(screen.queryByText('Restart Quiz')).not.toBeInTheDocument()
       })
 
       it('does not show restart button before quiz starts', () => {

@@ -273,8 +273,6 @@ describe('ScoreCard', () => {
     });
 
     it('calls onRestartQuiz when restart button clicked and user confirms', () => {
-      (global.confirm as unknown as ReturnType<typeof vi.fn>).mockReturnValue(true);
-
       render(
         <ScoreCard
           questions={mockQuestions}
@@ -293,15 +291,20 @@ describe('ScoreCard', () => {
       const restartButton = screen.getByTestId('restart-quiz-button');
       fireEvent.click(restartButton);
 
-      expect(global.confirm).toHaveBeenCalledWith(
-        'Are you sure you want to restart the quiz? Your current progress will be lost.'
-      );
+      // Modal should appear
+      expect(screen.getByTestId('confirm-modal')).toBeInTheDocument();
+      expect(screen.getByText('Restart Quiz')).toBeInTheDocument();
+      expect(screen.getByText('Are you sure you want to restart the quiz? Your current progress will be lost.')).toBeInTheDocument();
+
+      // Click OK in modal
+      const okButton = screen.getByTestId('confirm-modal-ok');
+      fireEvent.click(okButton);
+
       expect(mockOnRestartQuiz).toHaveBeenCalledTimes(1);
+      expect(screen.queryByTestId('confirm-modal')).not.toBeInTheDocument();
     });
 
     it('does not call onRestartQuiz when restart button clicked and user cancels', () => {
-      (global.confirm as unknown as ReturnType<typeof vi.fn>).mockReturnValue(false);
-
       render(
         <ScoreCard
           questions={mockQuestions}
@@ -320,10 +323,15 @@ describe('ScoreCard', () => {
       const restartButton = screen.getByTestId('restart-quiz-button');
       fireEvent.click(restartButton);
 
-      expect(global.confirm).toHaveBeenCalledWith(
-        'Are you sure you want to restart the quiz? Your current progress will be lost.'
-      );
+      // Modal should appear
+      expect(screen.getByTestId('confirm-modal')).toBeInTheDocument();
+
+      // Click Cancel in modal
+      const cancelButton = screen.getByTestId('confirm-modal-cancel');
+      fireEvent.click(cancelButton);
+
       expect(mockOnRestartQuiz).not.toHaveBeenCalled();
+      expect(screen.queryByTestId('confirm-modal')).not.toBeInTheDocument();
     });
 
     it('does not show restart button when quiz has not started', () => {

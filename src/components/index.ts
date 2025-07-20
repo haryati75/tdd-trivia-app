@@ -7,3 +7,4 @@ export { default as RadioButtonGroup } from './RadioButtonGroup';
 export { default as QuestionCard } from './QuestionCard';
 export { default as AnswerFeedback } from './AnswerFeedback';
 export { default as ScoreCard } from './ScoreCard';
+export { default as ConfirmModal } from './ConfirmModal';
