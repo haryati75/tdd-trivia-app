@@ -256,7 +256,7 @@ function App() {
           </Button>
         ) : currentQuestionIndex >= questionsData.length ? (
           <Button onClick={handleEndQuiz}>
-            Go to Home
+            Back to Start
           </Button>
         ) : (
           <Button 

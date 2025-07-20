@@ -66,4 +66,29 @@ describe('Text', () => {
     const textElement = screen.getByText('Still a paragraph')
     expect(textElement.tagName).toBe('P')
   })
+
+  it('supports h4 heading level', () => {
+    render(<Text variant="heading" level={4}>H4 heading</Text>)
+    const headingElement = screen.getByText('H4 heading')
+    expect(headingElement.tagName).toBe('H4')
+  })
+
+  it('supports h5 heading level', () => {
+    render(<Text variant="heading" level={5}>H5 heading</Text>)
+    const headingElement = screen.getByText('H5 heading')
+    expect(headingElement.tagName).toBe('H5')
+  })
+
+  it('supports h6 heading level', () => {
+    render(<Text variant="heading" level={6}>H6 heading</Text>)
+    const headingElement = screen.getByText('H6 heading')
+    expect(headingElement.tagName).toBe('H6')
+  })
+
+  it('falls back to h2 for invalid heading levels', () => {
+    // @ts-expect-error Testing invalid level
+    render(<Text variant="heading" level={7}>Invalid level heading</Text>)
+    const headingElement = screen.getByText('Invalid level heading')
+    expect(headingElement.tagName).toBe('H2')
+  })
 })

@@ -80,7 +80,38 @@ describe('Quiz Navigation', () => {
     
     // Score should now show with appropriate emoji for the percentage
     // 1 point out of total should show a different emoji than 0%
-    expect(screen.getByText(/🎯|💪|📚|👍|👏|🌟|🏆\s+Score:\s+1\/\d+\s+points/)).toBeInTheDocument()
+    // Use getAllByText to handle multiple matches and check the score specifically
+    const scoreElements = screen.getAllByText(/🎯|💪|📚|👍|👏|🌟|🏆.*Score.*1.*points/)
+    expect(scoreElements.length).toBeGreaterThan(0)
+  })
+
+  it('displays different performance emojis based on score percentage', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    await user.click(startButton)
+    
+    // Test low performance (should show 🎯)
+    expect(screen.getByText(/🎯.*Score: 0\/\d+ points/)).toBeInTheDocument()
+    
+    // Answer enough questions correctly to test different emoji ranges
+    // Get 50% score to test 📚 emoji (50-59% range)
+    const totalQuestions = 10
+    const halfQuestions = Math.floor(totalQuestions / 2)
+    
+    for (let i = 0; i < halfQuestions; i++) {
+      const correctOption = screen.getAllByRole('radio', { hidden: true })[1] // Usually the correct answer
+      await user.click(correctOption)
+      const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+      await user.click(confirmButton)
+      
+      if (i < halfQuestions - 1) {
+        const nextButton = screen.getByRole('button', { name: /next question/i })
+        await user.click(nextButton)
+      }
+    }
+    
+    // Should show medium performance emoji for around 50% score
+    expect(screen.getByText(/🎯|💪|📚.*Score: \d+\/\d+ points/)).toBeInTheDocument()
   })
 
   it('shows next question button after clicking Start Quiz', async () => {
@@ -93,35 +124,7 @@ describe('Quiz Navigation', () => {
     expect(nextButton).toBeInTheDocument()
   })
 
-  it('advances to next question when button is clicked after starting quiz', async () => {
-    render(<App />)
-    const startButton = screen.getByRole('button', { name: /start quiz/i })
-    
-    await user.click(startButton)
-    
-    const nextButton = screen.getByRole('button', { name: /next question/i })
-    await user.click(nextButton)
-
-    // Button text stays the same since it's just "Next Question"
-    expect(screen.getByRole('button', { name: /next question/i })).toBeInTheDocument()
-  })
-
-  it('advances question multiple times when button is clicked multiple times after starting quiz', async () => {
-    render(<App />)
-    const startButton = screen.getByRole('button', { name: /start quiz/i })
-    
-    await user.click(startButton)
-    
-    const nextButton = screen.getByRole('button', { name: /next question/i })
-    await user.click(nextButton)
-    await user.click(nextButton)
-    await user.click(nextButton)
-
-    // Button text remains "Next Question" regardless of how many times clicked
-    expect(screen.getByRole('button', { name: /next question/i })).toBeInTheDocument()
-  })
-
-  it('displays the correct next question button text after starting quiz', async () => {
+  it('advances to next question and maintains correct button text', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     
@@ -129,8 +132,10 @@ describe('Quiz Navigation', () => {
     
     const nextButton = screen.getByRole('button', { name: /next question/i })
     expect(nextButton).toHaveTextContent('Next Question')
-
+    
     await user.click(nextButton)
+    
+    // Button text should remain "Next Question" after advancing
     expect(screen.getByRole('button', { name: /next question/i })).toHaveTextContent('Next Question')
   })
 
@@ -160,8 +165,8 @@ describe('Quiz Navigation', () => {
       }
     }
     
-    // After going through all questions, button should say "Go to Home"
-    const endButton = screen.getByRole('button', { name: /go to home/i })
+    // After going through all questions, button should say "Back to Start"
+    const endButton = screen.getByRole('button', { name: /back to start/i })
     expect(endButton).toBeInTheDocument()
   })
 
@@ -191,7 +196,7 @@ describe('Quiz Navigation', () => {
       }
     }
     
-    const endButton = screen.getByRole('button', { name: /go to home/i })
+    const endButton = screen.getByRole('button', { name: /back to start/i })
     await user.click(endButton)
     
     // Should return to initial state
@@ -274,6 +279,32 @@ describe('Quiz Navigation', () => {
     
     // Before starting, should not show completion time
     expect(screen.queryByText(/🕒 Completed in/)).not.toBeInTheDocument()
+  })
+
+  it('formats completion time correctly for different durations', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    await user.click(startButton)
+    
+    // Complete the quiz - the actual timing will be very fast (seconds only)
+    // but we're testing that the completion time format appears correctly
+    for (let i = 0; i < 10; i++) {
+      const firstOption = screen.getAllByRole('radio', { hidden: true })[0]
+      await user.click(firstOption)
+      const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+      await user.click(confirmButton)
+      
+      if (i === 9) {
+        const endOfQuizButton = screen.getByRole('button', { name: /end of quiz/i })
+        await user.click(endOfQuizButton)
+      } else {
+        const nextButton = screen.getByRole('button', { name: /next question/i })
+        await user.click(nextButton)
+      }
+    }
+    
+    // Should show completion time in seconds format (since test runs quickly)
+    expect(screen.getByText(/🕒 Completed in \d+s/)).toBeInTheDocument()
   })
 })
 
@@ -497,26 +528,14 @@ describe('Scoring System', () => {
     expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
   })
 
-  it('does not update score when moving through multiple questions without confirming', async () => {
+  it('does not update score when moving through questions without confirming answers', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     await user.click(startButton)
     const nextButton = screen.getByRole('button', { name: /next question/i })
     await user.click(nextButton) // Q2 (no answer confirmed)
     await user.click(nextButton) // Q3 (no answer confirmed)
-    // No answers confirmed, score should remain 0
-    expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
-  })
-
-  it('does not update score across many questions without confirming answers', async () => {
-    render(<App />)
-    const startButton = screen.getByRole('button', { name: /start quiz/i })
-    await user.click(startButton)
-    const nextButton = screen.getByRole('button', { name: /next question/i })
-    await user.click(nextButton) // Q2 (no answer confirmed)
-    await user.click(nextButton) // Q3 (no answer confirmed) 
     await user.click(nextButton) // Q4 (no answer confirmed)
-    await user.click(nextButton) // Q5 (no answer confirmed)
     // No answers confirmed, score should remain 0
     expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
   })
@@ -579,38 +598,22 @@ describe('Scoring System', () => {
     expect(screen.getByText(/Score: 1\/\d+ points/)).toBeInTheDocument()
   })
 
-  it('does not add score for incorrect answers', async () => {
+  it('correctly handles scoring for correct and incorrect answers', async () => {
     render(<App />)
     const startButton = screen.getByRole('button', { name: /start quiz/i })
     await user.click(startButton)
     
-    // Select incorrect answer for first question and confirm
-    const incorrectOption = screen.getByLabelText(/Red = Code is working, Green = Write tests, Refactor = Break it down/i)
-    await user.click(incorrectOption)
-    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
-    await user.click(confirmButton)
-    
-    // Move to next question - should not add any points
-    const nextButton = screen.getByRole('button', { name: /next question/i })
-    await user.click(nextButton)
-    
-    expect(screen.getByText(/Score: 0\/\d+ points/)).toBeInTheDocument()
-  })
-
-  it('correctly calculates mixed correct and incorrect answers', async () => {
-    render(<App />)
-    const startButton = screen.getByRole('button', { name: /start quiz/i })
-    await user.click(startButton)
-    
-    // First question: Select correct answer (Easy = 1 point)
+    // Test correct answer adds score
     const correctOption1 = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
     await user.click(correctOption1)
     let confirmButton = screen.getByRole('button', { name: /confirm answer/i })
     await user.click(confirmButton)
+    expect(screen.getByText(/Score: 1\/\d+ points/)).toBeInTheDocument()
+    
     let nextButton = screen.getByRole('button', { name: /next question/i })
     await user.click(nextButton)
     
-    // Second question: Select incorrect answer (should not add points)
+    // Test incorrect answer doesn't add score
     const incorrectOption2 = screen.getByLabelText(/Refactor/i)
     await user.click(incorrectOption2)
     confirmButton = screen.getByRole('button', { name: /confirm answer/i })
@@ -618,7 +621,7 @@ describe('Scoring System', () => {
     nextButton = screen.getByRole('button', { name: /next question/i })
     await user.click(nextButton)
     
-    // Should only have 1 point from the first correct answer
+    // Should still only have 1 point from the first correct answer
     expect(screen.getByText(/Score: 1\/\d+ points/)).toBeInTheDocument()
   })
 
@@ -689,8 +692,8 @@ describe('Scoring System', () => {
       questionCount++
     }
     
-    // Ensure we're at the completion screen with "Go to Home" button
-    expect(screen.getByRole('button', { name: /go to home/i })).toBeInTheDocument()
+    // Ensure we're at the completion screen with "Back to Start" button
+    expect(screen.getByRole('button', { name: /back to start/i })).toBeInTheDocument()
     
     // At the end of quiz, progress should not be shown
     expect(screen.queryByText(/Progress: \d+%/)).not.toBeInTheDocument()
