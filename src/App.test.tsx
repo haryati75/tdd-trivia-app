@@ -150,13 +150,18 @@ describe('Quiz Navigation', () => {
       const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
       await user.click(confirmButton)
       
-      // Move to next question
-      const nextButton = screen.getByRole('button', { name: /next question/i })
-      await user.click(nextButton)
+      // Move to next question - on last question (index 9), button will say "End of Quiz"
+      if (i === 9) {
+        const endOfQuizButton = screen.getByRole('button', { name: /end of quiz/i })
+        await user.click(endOfQuizButton)
+      } else {
+        const nextButton = screen.getByRole('button', { name: /next question/i })
+        await user.click(nextButton)
+      }
     }
     
-    // After going through all questions, button should say "End of Quiz"
-    const endButton = screen.getByRole('button', { name: /end of quiz/i })
+    // After going through all questions, button should say "Go to Home"
+    const endButton = screen.getByRole('button', { name: /go to home/i })
     expect(endButton).toBeInTheDocument()
   })
 
@@ -176,12 +181,17 @@ describe('Quiz Navigation', () => {
       const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
       await user.click(confirmButton)
       
-      // Move to next question
-      const nextButton = screen.getByRole('button', { name: /next question/i })
-      await user.click(nextButton)
+      // Move to next question - on last question (index 9), button will say "End of Quiz"
+      if (i === 9) {
+        const endOfQuizButton = screen.getByRole('button', { name: /end of quiz/i })
+        await user.click(endOfQuizButton)
+      } else {
+        const nextButton = screen.getByRole('button', { name: /next question/i })
+        await user.click(nextButton)
+      }
     }
     
-    const endButton = screen.getByRole('button', { name: /end of quiz/i })
+    const endButton = screen.getByRole('button', { name: /go to home/i })
     await user.click(endButton)
     
     // Should return to initial state
@@ -205,9 +215,14 @@ describe('Quiz Navigation', () => {
       const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
       await user.click(confirmButton)
       
-      // Move to next question
-      const nextButton = screen.getByRole('button', { name: /next question/i })
-      await user.click(nextButton)
+      // Move to next question - on last question (index 9), button will say "End of Quiz"
+      if (i === 9) {
+        const endOfQuizButton = screen.getByRole('button', { name: /end of quiz/i })
+        await user.click(endOfQuizButton)
+      } else {
+        const nextButton = screen.getByRole('button', { name: /next question/i })
+        await user.click(nextButton)
+      }
     }
     
     // Should show final score assessment with emoji and message
@@ -230,9 +245,14 @@ describe('Quiz Navigation', () => {
       const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
       await user.click(confirmButton)
       
-      // Move to next question
-      const nextButton = screen.getByRole('button', { name: /next question/i })
-      await user.click(nextButton)
+      // Move to next question - on last question (index 9), button will say "End of Quiz"
+      if (i === 9) {
+        const endOfQuizButton = screen.getByRole('button', { name: /end of quiz/i })
+        await user.click(endOfQuizButton)
+      } else {
+        const nextButton = screen.getByRole('button', { name: /next question/i })
+        await user.click(nextButton)
+      }
     }
     
     // Should show completion time
@@ -639,12 +659,6 @@ describe('Scoring System', () => {
     const maxQuestions = 20 // Safety limit
     
     while (questionCount < maxQuestions) {
-      // Check if we're at the end of the quiz
-      const endOfQuizButton = screen.queryByRole('button', { name: /end of quiz/i })
-      if (endOfQuizButton) {
-        break
-      }
-      
       // Check if there are radio buttons available (meaning we have a question)
       const options = screen.queryAllByRole('radio', { hidden: true })
       if (options.length === 0) {
@@ -656,6 +670,14 @@ describe('Scoring System', () => {
       const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
       await user.click(confirmButton)
       
+      // Check if we're at the last question and need to click "End of Quiz"
+      const endOfQuizButton = screen.queryByRole('button', { name: /end of quiz/i })
+      if (endOfQuizButton) {
+        // Click the End of Quiz button to complete the quiz
+        await user.click(endOfQuizButton)
+        break
+      }
+      
       // Try to go to next question
       const nextButton = screen.queryByRole('button', { name: /next question/i })
       if (nextButton) {
@@ -666,6 +688,9 @@ describe('Scoring System', () => {
       
       questionCount++
     }
+    
+    // Ensure we're at the completion screen with "Go to Home" button
+    expect(screen.getByRole('button', { name: /go to home/i })).toBeInTheDocument()
     
     // At the end of quiz, progress should not be shown
     expect(screen.queryByText(/Progress: \d+%/)).not.toBeInTheDocument()

@@ -256,14 +256,14 @@ function App() {
           </Button>
         ) : currentQuestionIndex >= questionsData.length ? (
           <Button onClick={handleEndQuiz}>
-            End of Quiz
+            Go to Home
           </Button>
         ) : (
           <Button 
             onClick={handleNextQuestion}
             disabled={!isAnswerConfirmed}
           >
-            Next Question
+            {currentQuestionIndex === questionsData.length - 1 ? 'End of Quiz' : 'Next Question'}
           </Button>
         )}
       </Card>
