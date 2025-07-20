@@ -89,4 +89,74 @@ describe('RadioButtonGroup', () => {
     const radioButtons = screen.queryAllByRole('radio', { hidden: true })
     expect(radioButtons).toHaveLength(0)
   })
+
+  it('supports external selectedValue control', async () => {
+    const user = userEvent.setup()
+    const { rerender } = render(
+      <RadioButtonGroup 
+        options={mockOptions} 
+        onSelectionChange={mockCallback} 
+        selectedValue="Option 2"
+      />
+    )
+    
+    // Should start with externally selected value
+    const secondRadio = screen.getByLabelText('Option 2')
+    expect(secondRadio).toBeChecked()
+    
+    // Clicking should still trigger callback
+    const firstRadio = screen.getByLabelText('Option 1')
+    await user.click(firstRadio)
+    expect(mockCallback).toHaveBeenCalledWith('Option 1', 0)
+    
+    // But visual state should remain controlled by external prop
+    expect(secondRadio).toBeChecked()
+    expect(firstRadio).not.toBeChecked()
+    
+    // Update external value
+    rerender(
+      <RadioButtonGroup 
+        options={mockOptions} 
+        onSelectionChange={mockCallback} 
+        selectedValue="Option 1"
+      />
+    )
+    
+    // Get fresh references to the radio buttons after rerender
+    const updatedFirstRadio = screen.getByLabelText('Option 1')
+    const updatedSecondRadio = screen.getByLabelText('Option 2')
+    
+    // Now first radio should be checked
+    expect(updatedFirstRadio).toBeChecked()
+    expect(updatedSecondRadio).not.toBeChecked()
+  })
+
+  it('resets selection when name prop changes', async () => {
+    const user = userEvent.setup()
+    const { rerender } = render(
+      <RadioButtonGroup 
+        options={mockOptions} 
+        onSelectionChange={mockCallback} 
+        name="group1"
+      />
+    )
+    
+    // Select an option
+    const firstRadio = screen.getByLabelText('Option 1')
+    await user.click(firstRadio)
+    expect(firstRadio).toBeChecked()
+    
+    // Change name prop (simulating new question)
+    rerender(
+      <RadioButtonGroup 
+        options={mockOptions} 
+        onSelectionChange={mockCallback} 
+        name="group2"
+      />
+    )
+    
+    // Selection should be reset
+    const newFirstRadio = screen.getByLabelText('Option 1')
+    expect(newFirstRadio).not.toBeChecked()
+  })
 })

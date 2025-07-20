@@ -208,6 +208,7 @@ function App() {
             onSelectionChange={handleAnswerSelection}
             name={`question-${currentQuestionIndex}`}
             disabled={isAnswerConfirmed}
+            selectedValue={selectedAnswer}
           />
           {selectedAnswer && !isAnswerConfirmed && (
             <Button 
