@@ -80,7 +80,7 @@ describe('Quiz Navigation', () => {
     
     // Score should now show with appropriate emoji for the percentage
     // 1 point out of total should show a different emoji than 0%
-    expect(screen.getByText(/🎯|💪|📚|👍|👏|🌟|🏆.*Score: 1\/\d+ points/)).toBeInTheDocument()
+    expect(screen.getByText(/🎯|💪|📚|👍|👏|🌟|🏆\s+Score:\s+1\/\d+\s+points/)).toBeInTheDocument()
   })
 
   it('shows next question button after clicking Start Quiz', async () => {
@@ -140,8 +140,17 @@ describe('Quiz Navigation', () => {
     
     await user.click(startButton)
     
-    // Click through all questions (10 total, so click 10 times to go past last question)
+    // Click through all questions (10 total) with proper answer selection and confirmation
     for (let i = 0; i < 10; i++) {
+      // Select first option for each question
+      const firstOption = screen.getAllByRole('radio', { hidden: true })[0]
+      await user.click(firstOption)
+      
+      // Confirm the answer
+      const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+      await user.click(confirmButton)
+      
+      // Move to next question
       const nextButton = screen.getByRole('button', { name: /next question/i })
       await user.click(nextButton)
     }
@@ -157,8 +166,17 @@ describe('Quiz Navigation', () => {
     
     await user.click(startButton)
     
-    // Click through all questions to get to the end
+    // Click through all questions to get to the end with proper answer selection and confirmation
     for (let i = 0; i < 10; i++) {
+      // Select first option for each question
+      const firstOption = screen.getAllByRole('radio', { hidden: true })[0]
+      await user.click(firstOption)
+      
+      // Confirm the answer
+      const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+      await user.click(confirmButton)
+      
+      // Move to next question
       const nextButton = screen.getByRole('button', { name: /next question/i })
       await user.click(nextButton)
     }
@@ -177,8 +195,17 @@ describe('Quiz Navigation', () => {
     
     await user.click(startButton)
     
-    // Click through all questions to get to the end
+    // Click through all questions to get to the end with proper answer selection and confirmation
     for (let i = 0; i < 10; i++) {
+      // Select first option for each question
+      const firstOption = screen.getAllByRole('radio', { hidden: true })[0]
+      await user.click(firstOption)
+      
+      // Confirm the answer
+      const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+      await user.click(confirmButton)
+      
+      // Move to next question
       const nextButton = screen.getByRole('button', { name: /next question/i })
       await user.click(nextButton)
     }
@@ -193,8 +220,17 @@ describe('Quiz Navigation', () => {
     
     await user.click(startButton)
     
-    // Complete the quiz quickly
+    // Complete the quiz quickly with proper answer selection and confirmation
     for (let i = 0; i < 10; i++) {
+      // Select first option for each question
+      const firstOption = screen.getAllByRole('radio', { hidden: true })[0]
+      await user.click(firstOption)
+      
+      // Confirm the answer
+      const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+      await user.click(confirmButton)
+      
+      // Move to next question
       const nextButton = screen.getByRole('button', { name: /next question/i })
       await user.click(nextButton)
     }
@@ -271,8 +307,20 @@ describe('Question Display', () => {
     await user.click(startButton)
     
     // Navigate to third question which is Medium difficulty
-    const nextButton = screen.getByRole('button', { name: /next question/i })
+    // First question
+    let firstOption = screen.getAllByRole('radio', { hidden: true })[0]
+    await user.click(firstOption)
+    let confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    let nextButton = screen.getByRole('button', { name: /next question/i })
     await user.click(nextButton) // Go to question 2
+    
+    // Second question
+    firstOption = screen.getAllByRole('radio', { hidden: true })[0]
+    await user.click(firstOption)
+    confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    nextButton = screen.getByRole('button', { name: /next question/i })
     await user.click(nextButton) // Go to question 3
     
     // Third question is Applied TDD with Medium difficulty
@@ -287,11 +335,15 @@ describe('Question Display', () => {
     await user.click(startButton)
     
     // Navigate to fifth question which is Hard difficulty
-    const nextButton = screen.getByRole('button', { name: /next question/i })
-    await user.click(nextButton) // Go to question 2
-    await user.click(nextButton) // Go to question 3
-    await user.click(nextButton) // Go to question 4
-    await user.click(nextButton) // Go to question 5
+    // Questions 1-4
+    for (let i = 0; i < 4; i++) {
+      const firstOption = screen.getAllByRole('radio', { hidden: true })[0]
+      await user.click(firstOption)
+      const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+      await user.click(confirmButton)
+      const nextButton = screen.getByRole('button', { name: /next question/i })
+      await user.click(nextButton)
+    }
     
     // Fifth question is Real-World TDD with Hard difficulty
     const categoryDifficulty = screen.getByText('📂 Real-World TDD • 🔴 Hard')
@@ -315,6 +367,31 @@ describe('Answer Selection & Confirmation', () => {
     // Should not show confirm button when no answer is selected
     const confirmButton = screen.queryByRole('button', { name: /confirm answer/i })
     expect(confirmButton).not.toBeInTheDocument()
+  })
+
+  it('disables Next Question button when no answer is confirmed', async () => {
+    render(<App />)
+    const startButton = screen.getByRole('button', { name: /start quiz/i })
+    
+    await user.click(startButton)
+    
+    // Next Question button should be disabled when no answer is confirmed
+    const nextButton = screen.getByRole('button', { name: /next question/i })
+    expect(nextButton).toBeDisabled()
+    
+    // Select an answer but don't confirm it yet
+    const firstOption = screen.getAllByRole('radio', { hidden: true })[0]
+    await user.click(firstOption)
+    
+    // Next Question button should still be disabled
+    expect(nextButton).toBeDisabled()
+    
+    // Confirm the answer
+    const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+    await user.click(confirmButton)
+    
+    // Next Question button should now be enabled
+    expect(nextButton).toBeEnabled()
   })
 
   it('enables confirm answer button when an answer is selected', async () => {

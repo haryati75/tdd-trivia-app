@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import './App.css'
+import './App.scss'
 import Button from './components/Button'
 import Text from './components/Text'
 import Card from './components/Card'
@@ -231,6 +231,11 @@ function App() {
         </Card>
       )}
       <Card>
+        {currentQuestionIndex !== -1 && currentQuestionIndex < questionsData.length && !isAnswerConfirmed && (
+          <Text>
+            👆 Select one of the options above to continue
+          </Text>
+        )}
         {currentQuestionIndex !== -1 && (
           <Text>
             {getCurrentPerformanceEmoji()} Score: {score}/{totalPossibleScore} points
@@ -254,7 +259,10 @@ function App() {
             End of Quiz
           </Button>
         ) : (
-          <Button onClick={handleNextQuestion}>
+          <Button 
+            onClick={handleNextQuestion}
+            disabled={!isAnswerConfirmed}
+          >
             Next Question
           </Button>
         )}

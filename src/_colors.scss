@@ -1,0 +1,116 @@
+// Color Theme Variables
+// Define all colors in one place for easy maintenance
+
+// CSS Custom Properties for theme switching
+:root {
+  // Global/Root colors
+  --color-background: #242424;        // Dark theme background
+  --color-text: rgba(255, 255, 255, 0.87);  // Dark theme text
+  
+  // Interactive element colors (dark theme)
+  --color-primary: #780c0c;           // Main brand color (dark red)
+  --color-primary-hover: #a0a1ab;     // Hover state for primary elements
+  --color-border-default: rgba(255, 255, 255, 0.2);  // Default border (subtle white)
+  --color-border-dark: rgba(0, 0, 0, 0.1);           // Dark border for shadows
+  --color-accent: #a0a1ab;            // Accent color for emphasis
+  
+  // Background colors with transparency
+  --color-primary-bg-light: rgba(120, 12, 12, 0.05);   // Very light primary background
+  --color-primary-bg-medium: rgba(120, 12, 12, 0.2);   // Medium primary background
+  --color-primary-bg-strong: rgba(120, 12, 12, 0.3);   // Strong primary background
+  
+  // Button specific colors
+  --color-button-bg: #780c0c;         // Button background
+  --color-button-border-hover: rgba(160, 161, 171, 0.46);  // Button border on hover
+}
+
+// Light theme overrides
+@media (prefers-color-scheme: light) {
+  :root {
+    // Global/Root colors for light theme
+    --color-background: #ffffff;       // Light theme background
+    --color-text: #213547;             // Light theme text
+    
+    // Interactive element colors (light theme)
+    --color-primary: #bcbdde;           // Light theme primary (purple-gray)
+    --color-primary-hover: #a0a1ab;     // Consistent hover across themes
+    --color-border-default: rgba(0, 0, 0, 0.1);        // Default border (subtle black)
+    --color-border-dark: rgba(0, 0, 0, 0.1);           // Same as default in light mode
+    --color-accent: #a0a1ab;            // Consistent accent
+    
+    // Light theme backgrounds
+    --color-primary-bg-light: rgba(188, 189, 222, 0.1);   // Very light primary background
+    --color-primary-bg-medium: rgba(188, 189, 222, 0.3);   // Medium primary background  
+    --color-primary-bg-strong: rgba(188, 189, 222, 0.4);   // Strong primary background
+    
+    // Button specific colors for light theme
+    --color-button-bg: #bcbdde;         // Button background
+    --color-button-border-hover: rgba(160, 161, 171, 0.46);  // Button border on hover (same)
+  }
+}
+
+// SCSS Variables for easier usage (optional, but helpful for calculations)
+$color-primary-dark: #780c0c;
+$color-primary-light: #bcbdde;
+$color-accent: #a0a1ab;
+
+// Mixins for common color patterns
+@mixin interactive-element {
+  border: 1px solid var(--color-border-default);
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  
+  &:hover:not(.disabled) {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--color-border-dark);
+  }
+  
+  &.selected {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-bg-light);
+    box-shadow: 0 2px 4px var(--color-primary-bg-medium);
+    
+    &:hover:not(.disabled) {
+      border-color: var(--color-primary-hover);
+      box-shadow: 0 4px 8px var(--color-primary-bg-strong);
+    }
+  }
+  
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@mixin link-styles {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+  }
+}
+
+@mixin button-styles {
+  border-radius: 8px;
+  border: 3px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--color-button-bg);
+  cursor: pointer;
+  transition: border-color 0.25s;
+  
+  &:hover {
+    border-color: var(--color-button-border-hover);
+  }
+  
+  &:focus,
+  &:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+}

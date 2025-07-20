@@ -25,6 +25,14 @@ A modern, interactive trivia application focused on Test-Driven Development (TDD
 - **Performance assessment** with motivational messages at the end
 - **Completion timing** to track how long you took
 - **Responsive design** that works on all devices
+- **Dark/Light theme support** with automatic system preference detection
+
+### 🏗️ Developer Experience
+
+- **SCSS color management system** for maintainable styling
+- **Centralized color variables** with automatic theme switching
+- **Reusable UI mixins** for consistent interactive elements
+- **Type-safe styling** with SCSS variables and mixins
 
 ### 🧪 Built with TDD Methodology
 
@@ -137,8 +145,10 @@ src/
 │   ├── RadioButtonGroup.tsx  # Interactive radio options
 │   ├── Text.tsx        # Typography component
 │   └── *.test.tsx      # Component tests
+├── _colors.scss        # 🎨 Centralized color system & mixins
 ├── App.tsx             # Main application component
-├── App.css             # Application styles
+├── App.scss            # Application styles using color system
+├── index.scss          # Global styles with color variables
 ├── questions.json      # TDD trivia questions database
 └── main.tsx           # Application entry point
 ```
@@ -167,10 +177,23 @@ src/
 
 ### 🎨 Styling Architecture
 
-- **CSS-in-CSS** approach with modular styles
-- **Theme support** for dark/light modes
-- **Animation system** for interactive elements
+- **SCSS with centralized color system** - All colors managed in one place
+- **CSS custom properties** for automatic theme switching (dark/light modes)
+- **Reusable mixins** for consistent interactive elements
+- **Animation system** for hover and selection effects
 - **Responsive design** principles
+
+#### 🌈 Color Management System
+
+This project features a comprehensive color management system that provides:
+
+- **Single source of truth** for all colors in `_colors.scss`
+- **Automatic theme switching** based on user's system preference
+- **CSS custom properties** (variables) for efficient styling
+- **SCSS mixins** for common interactive patterns
+- **Easy maintenance** - change colors once, updates everywhere
+
+**📚 [Detailed Color System Documentation](docs/COLOR_SYSTEM.md)** - Learn how to use and extend the color system
 
 ## 📊 Test Coverage
 
@@ -195,8 +218,8 @@ This app teaches TDD concepts including:
 
 - **Frontend**: React 19.1, TypeScript 5.8
 - **Build Tool**: Vite 7.0
+- **Styling**: SCSS with centralized color management system
 - **Testing**: Vitest 3.2, React Testing Library, Playwright
-- **Styling**: CSS3 with modern features
 - **Code Quality**: ESLint, TypeScript strict mode
 
 ## 📈 Performance Features
