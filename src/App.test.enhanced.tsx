@@ -455,7 +455,7 @@ describe('App Component', () => {
         // First correct answer
         const correctOption1 = screen.getByLabelText(/Red = Test fails, Green = Test passes, Refactor = Improve the code/i)
         await user.click(correctOption1)
-        const confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+        let confirmButton = screen.getByRole('button', { name: /confirm answer/i })
         await user.click(confirmButton)
         expect(screen.getByText(/Score: 1\/\d+ points/)).toBeInTheDocument()
         
@@ -465,8 +465,8 @@ describe('App Component', () => {
         // Second correct answer (if we know it)
         const options = screen.getAllByRole('radio', { hidden: true })
         await user.click(options[1]) // Try second option
-        const confirmButton2 = screen.getByRole('button', { name: /confirm answer/i })
-        await user.click(confirmButton2)
+        confirmButton = screen.getByRole('button', { name: /confirm answer/i })
+        await user.click(confirmButton)
         
         // Score should reflect cumulative correct answers
         expect(screen.getByText(/Score: \d+\/\d+ points/)).toBeInTheDocument()
