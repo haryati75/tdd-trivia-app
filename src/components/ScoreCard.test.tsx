@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, type Mock } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ScoreCard from './ScoreCard';
 import type { Question } from '../types/quiz';
@@ -242,7 +242,6 @@ describe('ScoreCard', () => {
         onStartQuiz={mockOnStartQuiz}
         onEndQuiz={mockOnEndQuiz}
         onNextQuestion={mockOnNextQuestion}
-          onRestartQuiz={mockOnRestartQuiz}
         onRestartQuiz={mockOnRestartQuiz}
       />
     );
@@ -267,7 +266,6 @@ describe('ScoreCard', () => {
           onEndQuiz={mockOnEndQuiz}
           onNextQuestion={mockOnNextQuestion}
           onRestartQuiz={mockOnRestartQuiz}
-          onRestartQuiz={mockOnRestartQuiz}
         />
       );
 
@@ -288,7 +286,6 @@ describe('ScoreCard', () => {
           onStartQuiz={mockOnStartQuiz}
           onEndQuiz={mockOnEndQuiz}
           onNextQuestion={mockOnNextQuestion}
-          onRestartQuiz={mockOnRestartQuiz}
           onRestartQuiz={mockOnRestartQuiz}
         />
       );
@@ -316,7 +313,6 @@ describe('ScoreCard', () => {
           onStartQuiz={mockOnStartQuiz}
           onEndQuiz={mockOnEndQuiz}
           onNextQuestion={mockOnNextQuestion}
-          onRestartQuiz={mockOnRestartQuiz}
           onRestartQuiz={mockOnRestartQuiz}
         />
       );
