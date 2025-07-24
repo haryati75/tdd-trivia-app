@@ -9,10 +9,10 @@
   
   // Interactive element colors (dark theme)
   --color-primary: #780c0c;           // Main brand color (dark red)
-  --color-primary-hover: #a0a1ab;     // Hover state for primary elements
+  --color-primary-hover: #FF90BB;     // Hover state for primary elements
   --color-border-default: rgba(255, 255, 255, 0.2);  // Default border (subtle white)
   --color-border-dark: rgba(0, 0, 0, 0.1);           // Dark border for shadows
-  --color-accent: #a0a1ab;            // Accent color for emphasis
+  --color-accent: #FF90BB;            // Accent color for emphasis
   
   // Background colors with transparency
   --color-primary-bg-light: rgba(120, 12, 12, 0.05);   // Very light primary background
@@ -28,15 +28,15 @@
 @media (prefers-color-scheme: light) {
   :root {
     // Global/Root colors for light theme
-    --color-background: #ffffff;       // Light theme background
+    --color-background: #F8F8E1;       // Light theme background
     --color-text: #213547;             // Light theme text
     
     // Interactive element colors (light theme)
-    --color-primary: #bcbdde;           // Light theme primary (purple-gray)
-    --color-primary-hover: #a0a1ab;     // Consistent hover across themes
-    --color-border-default: rgba(0, 0, 0, 0.1);        // Default border (subtle black)
+    --color-primary: #FFC1DA;           // Light theme primary (purple-gray)
+    --color-primary-hover: #FF90BB;     // Consistent hover across themes
+    --color-border-default: #8ACCD5;        // Default border (subtle black)
     --color-border-dark: rgba(0, 0, 0, 0.1);           // Same as default in light mode
-    --color-accent: #a0a1ab;            // Consistent accent
+    --color-accent: #FF90BB;            // Consistent accent
     
     // Light theme backgrounds
     --color-primary-bg-light: rgba(188, 189, 222, 0.1);   // Very light primary background
@@ -44,15 +44,15 @@
     --color-primary-bg-strong: rgba(188, 189, 222, 0.4);   // Strong primary background
     
     // Button specific colors for light theme
-    --color-button-bg: #bcbdde;         // Button background
+    --color-button-bg: #FFC1DA;         // Button background
     --color-button-border-hover: rgba(160, 161, 171, 0.46);  // Button border on hover (same)
   }
 }
 
 // SCSS Variables for easier usage (optional, but helpful for calculations)
 $color-primary-dark: #780c0c;
-$color-primary-light: #bcbdde;
-$color-accent: #a0a1ab;
+$color-primary-light: #FFC1DA;
+$color-accent: #FF90BB;
 
 // Mixins for common color patterns
 @mixin interactive-element {
@@ -111,6 +111,6 @@ $color-accent: #a0a1ab;
   
   &:focus,
   &:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
+    outline: 4px auto var(--color-accent);
   }
 }
